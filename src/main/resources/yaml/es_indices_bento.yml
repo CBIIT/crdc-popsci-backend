@@ -58,8 +58,6 @@ Indices:
             type: keyword
           data_file_location:
             type: keyword
-          data_file_location:
-            type: keyword
           data_file_signed_url:
             type: keyword
       associated_links:
