@@ -103,7 +103,7 @@ Indices:
         data_file_size:data.data_file_size,
         data_file_uuid:data.data_file_uuid,
         association:'study',
-        data_file_location:data.data_file_location
+        data_file_location:data.data_file_location,
         data_file_signed_url:data.data_file_signed_url
        }) as data_file,
         Collect(DISTINCT{
