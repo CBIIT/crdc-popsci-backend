@@ -337,9 +337,18 @@ Indices:
         type: integer
       study_ending_year_min:
         type: integer
+      participant_minimum_minimum_age:
+        type: interger
+      participant_minimum_maximum_age:
+        type: interger
+      participant_maximum_minimum_age:
+        type: interger
+      participant_maximum_maximum_age:
+        type: interger
     # Cypher query will be used to retrieve data from Neo4j, and index into Elasticsearch
     cypher_query: "
       MATCH (study:study)
+      MATCH (study_demo:study_demographic)
       RETURN
       max(study.number_of_participants) as number_of_participant_max,
       min(study.number_of_participants) as number_of_participant_min,
@@ -348,6 +357,10 @@ Indices:
       max(study.study_beginning_year) as study_beginning_year_max,
       min(study.study_beginning_year) as study_beginning_year_min,
       max(study.study_ending_year) as study_ending_year_max,
-      min(study.study_ending_year) as study_ending_year_min
+      min(study.study_ending_year) as study_ending_year_min,
+      min(study_demo.study_participant_minimum_age) as participant_minimum_minimum_age,
+      max(study_demo.study_participant_minimum_age) as participant_minimum_maximum_age,
+      min(study_demo.study_participant_maximum_age) as participant_maximum_minimum_age,
+      max(study_demo.study_participant_maximum_age) as participant_maximum_maximum_age
       "
   
