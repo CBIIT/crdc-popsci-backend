@@ -48,3 +48,10 @@ queries:
         subject_id: study_name
     result:
       type: object_array
+  - name: minMaxBoundQuery
+    index:
+      - min_max_bound_query
+    filter:
+      type: default
+    result:
+      type: object_array
