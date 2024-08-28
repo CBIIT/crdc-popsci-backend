@@ -321,46 +321,34 @@ Indices:
   - index_name: min_max_bound_query
     type: neo4j
     mapping:
-      number_of_participant_max:
+      number_of_participant_upper_bound:
         type: integer
-      number_of_participant_min:
+      number_of_participant_lower_bound:
         type: integer
-      enrollment_beginning_year_max:
+      enrollment_beginning_year_lower_bound:
         type: integer
-      enrollment_ending_year_min:
+      enrollment_ending_year_upper_bound:
         type: integer
-      study_beginning_year_max:
+      study_beginning_year_lower_bound:
         type: integer
-      study_beginning_year_min:
+      study_ending_year_upper_bound:
         type: integer
-      study_ending_year_max:
+      participant_minimum_age_lower_bound:
         type: integer
-      study_ending_year_min:
+      participant_maximum_age_upper_bound:
         type: integer
-      participant_minimum_minimum_age:
-        type: interger
-      participant_minimum_maximum_age:
-        type: interger
-      participant_maximum_minimum_age:
-        type: interger
-      participant_maximum_maximum_age:
-        type: interger
     # Cypher query will be used to retrieve data from Neo4j, and index into Elasticsearch
     cypher_query: "
       MATCH (study:study)
       MATCH (study_demo:study_demographic)
       RETURN
-      max(study.number_of_participants) as number_of_participant_max,
-      min(study.number_of_participants) as number_of_participant_min,
-      max(study.enrollment_beginning_year) as enrollment_beginning_year_max,
-      min(study.enrollment_beginning_year) as enrollment_ending_year_min,
-      max(study.study_beginning_year) as study_beginning_year_max,
-      min(study.study_beginning_year) as study_beginning_year_min,
-      max(study.study_ending_year) as study_ending_year_max,
-      min(study.study_ending_year) as study_ending_year_min,
-      min(study_demo.study_participant_minimum_age) as participant_minimum_minimum_age,
-      max(study_demo.study_participant_minimum_age) as participant_minimum_maximum_age,
-      min(study_demo.study_participant_maximum_age) as participant_maximum_minimum_age,
-      max(study_demo.study_participant_maximum_age) as participant_maximum_maximum_age
+      max(study.number_of_participants) as number_of_participant_upper_bound,
+      min(study.number_of_participants) as number_of_participant_lower_bound,
+      min(study.enrollment_beginning_year) as enrollment_beginning_year_lower_bound,
+      max(study.enrollment_ending_year) as enrollment_ending_year_upper_bound,
+      min(study.study_beginning_year) as study_beginning_year_lower_bound,
+      max(study.study_ending_year) as study_ending_year_upper_bound,
+      min(study_demo.study_participant_minimum_age) as participant_minimum_age_lower_bound,
+      max(study_demo.study_participant_maximum_age) as participant_maximum_age_upper_bound
       "
   
