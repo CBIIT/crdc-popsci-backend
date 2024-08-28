@@ -80,6 +80,7 @@ type minMaxBoundQuery{
   participant_minimum_maximum_age: Int
   participant_maximum_minimum_age: Int
   participant_maximum_maximum_age: Int
+}
 type publication {
   authorship : String
   publication_title : String
