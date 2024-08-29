@@ -1,6 +1,13 @@
 queries:
   - name: searchStudies
     globalRangeFields:
+      - study_beginning_year
+      - study_ending_year
+      - enrollment_beginning_year
+      - enrollment_ending_year
+      - study_participant_minimum_age
+      - study_participant_maximum_age
+      - number_of_participants
     returnFields:
       - name: numberOfStudies
         index:
@@ -231,7 +238,6 @@ queries:
         filter:
           type: range
           selectedField: study_beginning_year
-          ignoreSelectedField: true
           rangeFilterFields:
             - study_beginning_year
         result:
@@ -242,7 +248,6 @@ queries:
         filter:
           type: range
           selectedField: study_ending_year
-          ignoreSelectedField: true
           rangeFilterFields:
             - study_ending_year
         result:
@@ -253,7 +258,15 @@ queries:
         filter:
           type: range
           selectedField: number_of_participants
-          ignoreSelectedField: true
+          rangeFilterFields:
+            - study_participant_minimum_age
+            - number_of_participants
+            - study_beginning_year
+            - study_ending_year
+            - enrollment_beginning_year
+            - enrollment_ending_year
+            - study_participant_minimum_age
+            - study_participant_maximum_age
         result:
           type: range
       - name: participantAgeAtEnrollmentMin
@@ -264,6 +277,13 @@ queries:
           selectedField: study_participant_minimum_age
           rangeFilterFields:
             - study_participant_minimum_age
+            - number_of_participants
+            - study_beginning_year
+            - study_ending_year
+            - enrollment_beginning_year
+            - enrollment_ending_year
+            - study_participant_minimum_age
+            - study_participant_maximum_age
         result:
           type: range
       - name: participantAgeAtEnrollmentMax
@@ -281,6 +301,7 @@ queries:
           - tab_study
         filter:
           type: range
+          ignoreSelectedField: true
           selectedField: enrollment_ending_year
           rangeFilterFields:
             - enrollment_ending_year
@@ -291,6 +312,7 @@ queries:
           - tab_study
         filter:
           type: range
+          ignoreSelectedField: true
           selectedField: enrollment_beginning_year
           rangeFilterFields:
             - enrollment_beginning_year
@@ -298,7 +320,7 @@ queries:
           type: range
       - name: dataVolume
         index:
-        - data_volume_query
+          - data_volume_query
         filter:
           type: sum
           selectedField: data_volume

@@ -67,6 +67,16 @@ type personnel {
   institution : String
   email_address : String
 }
+type minMaxBoundQuery{
+      number_of_participant_upper_bound : Int
+      number_of_participant_lower_bound : Int
+      enrollment_beginning_year_lower_bound : Int
+      enrollment_ending_year_upper_bound : Int
+      study_beginning_year_lower_bound : Int
+      study_ending_year_upper_bound : Int
+      participant_minimum_age_lower_bound : Int
+      participant_maximum_age_upper_bound : Int
+}
 type publication {
   authorship : String
   publication_title : String
@@ -258,4 +268,6 @@ type QueryType {
   dataCollectionPage(
     study_short_name: [String] = []
   ): [data_collection_page]
+
+  minMaxBoundQuery: [minMaxBoundQuery]
 }
