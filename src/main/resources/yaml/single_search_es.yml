@@ -1,111 +1,57 @@
 queries:
-  - name: findSubjectIdsInList
+  - name: studyGeneral
     index:
-      - subjects
+      - study_overview
     filter:
       type: default
-      caseInsensitive: true
       ignoreIfEmpty:
-        - subject_ids
+        - study_short_name
     result:
       type: object_array
-  - name: filesInList
+  - name: globalStatsBar
     index:
-      - files
+      - global_stats_bar
     filter:
-      type: pagination
-      defaultSortField: file_name
-      ignoreIfEmpty:
-        - file_ids
-    result:
-      type: object_array
-  - name: sampleOverview
-    index:
-      - samples
-    filter:
-      type: pagination
-      defaultSortField: sample_id_num
-      alternativeSortField:
-        sample_id: sample_id_num
-        subject_id: subject_id_num
+      type: default
       rangeFilterFields:
-        - age_at_index
+        - number_of_participants
+        - study_beginning_year
+        - study_ending_year
+        - enrollment_beginning_year
+        - enrollment_ending_year
+        - study_participant_minimum_age
+        - study_participant_maximum_age
     result:
       type: object_array
-  - name: fileOverview
+  - name: dataCollectionPage
     index:
-      - files
+      - data_collection
+    filter:
+      type: default
+    result:
+      type: object_array
+  - name: tabStudy
+    index:
+      - tab_study
     filter:
       type: pagination
-      defaultSortField: file_name
-      alternativeSortField:
-        sample_id: sample_id_num
-        subject_id: subject_id_num
+      defaultSortField: study_short_name
       rangeFilterFields:
-        - age_at_index
-    result:
-      type: object_array
-  - name: subjectOverview
-    index:
-      - subjects
-    filter:
-      type: pagination
-      defaultSortField: subject_id_num
+        - number_of_participants
+        - study_beginning_year
+        - study_ending_year
+        - enrollment_beginning_year
+        - enrollment_ending_year
+        - study_participant_minimum_age
+        - study_participant_maximum_age
       alternativeSortField:
-        subject_id: subject_id_num
-      rangeFilterFields:
-        - age_at_index
+        subject_id: study_name
     result:
       type: object_array
-  - name: fileIDsFromList
+  - name: minMaxBoundQuery
     index:
-      - files
+      - min_max_bound_query
     filter:
       type: default
-      caseInsensitive: true
-      selectedField: file_ids
-      ignoreIfEmpty:
-        - subject_ids
-        - sample_ids
-        - file_names
-    result:
-      type: str_array
-  - name: subjectsInList
-    index:
-      - subjects
-    filter:
-#      extraFilters:
-#        diagnosis:
-#          - Medullary Carcinoma
-#        tumor_size:
-#          - (2,3]
-      type: default
-      caseInsensitive: true
-      selectedField: subject_ids
-    result:
-      type: object_array
-  - name: filesOfSubjects
-    index:
-      - files
-    filter:
-      type: default
-      caseInsensitive: true
-      selectedField: subject_id
-    result:
-      type: object_array
-  - name: fileIdsFromFileName
-    index:
-      - files
-    filter:
-      type: default
-      caseInsensitive: true
-    result:
-      type: object_array
-  - name: fileIdsFromFileNameDesc
-    index:
-      - files
-    filter:
-      type: default
-      caseInsensitive: true
     result:
       type: object_array
