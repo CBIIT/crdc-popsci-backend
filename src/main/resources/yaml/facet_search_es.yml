@@ -3,6 +3,7 @@ queries:
     globalRangeFields:
       - study_beginning_year
       - study_ending_year
+      - enrollmentPeriodMax
       - enrollment_beginning_year
       - enrollment_ending_year
       - study_participant_minimum_age
@@ -13,6 +14,15 @@ queries:
         index:
           - tab_study
         filter:
+          rangeFilterFields:
+            - study_participant_minimum_age
+            - number_of_participants
+            - study_beginning_year
+            - study_ending_year
+            - enrollment_beginning_year
+            - enrollment_ending_year
+            - study_participant_minimum_age
+            - study_participant_maximum_age
           type: aggregation
           selectedField: study_short_name
         result:
@@ -213,6 +223,22 @@ queries:
           type: aggregation
           selectedField: sexes
           ignoreSelectedField: true
+        result:
+          type: group_count
+      - name: neoplasmCountByStudy
+        index:
+          - neoplasm_query
+        filter:
+          type: aggregation
+          selectedField: study_short_name
+        result:
+          type: group_count
+      - name: filterNeoplasmCountByStudy
+        index:
+          - neoplasm_query
+        filter:
+          type: aggregation
+          selectedField: study_short_name
         result:
           type: group_count
       - name: studyCountByGender

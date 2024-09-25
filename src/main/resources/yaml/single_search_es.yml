@@ -4,6 +4,15 @@ queries:
       - study_overview
     filter:
       type: default
+      rangeFilterFields:
+            - study_participant_minimum_age
+            - number_of_participants
+            - study_beginning_year
+            - study_ending_year
+            - enrollment_beginning_year
+            - enrollment_ending_year
+            - study_participant_minimum_age
+            - study_participant_maximum_age
       ignoreIfEmpty:
         - study_short_name
     result:
@@ -14,19 +23,29 @@ queries:
     filter:
       type: default
       rangeFilterFields:
-        - number_of_participants
-        - study_beginning_year
-        - study_ending_year
-        - enrollment_beginning_year
-        - enrollment_ending_year
-        - study_participant_minimum_age
-        - study_participant_maximum_age
+            - study_participant_minimum_age
+            - number_of_participants
+            - study_beginning_year
+            - study_ending_year
+            - enrollment_beginning_year
+            - enrollment_ending_year
+            - study_participant_minimum_age
+            - study_participant_maximum_age
     result:
       type: object_array
   - name: dataCollectionPage
     index:
       - data_collection
     filter:
+      rangeFilterFields:
+            - study_participant_minimum_age
+            - number_of_participants
+            - study_beginning_year
+            - study_ending_year
+            - enrollment_beginning_year
+            - enrollment_ending_year
+            - study_participant_minimum_age
+            - study_participant_maximum_age
       type: default
     result:
       type: object_array
@@ -37,13 +56,14 @@ queries:
       type: pagination
       defaultSortField: study_short_name
       rangeFilterFields:
-        - number_of_participants
-        - study_beginning_year
-        - study_ending_year
-        - enrollment_beginning_year
-        - enrollment_ending_year
-        - study_participant_minimum_age
-        - study_participant_maximum_age
+            - study_participant_minimum_age
+            - number_of_participants
+            - study_beginning_year
+            - study_ending_year
+            - enrollment_beginning_year
+            - enrollment_ending_year
+            - study_participant_minimum_age
+            - study_participant_maximum_age
       alternativeSortField:
         subject_id: study_name
     result:
