@@ -531,10 +531,18 @@ Indices:
         type: float
       study_participant_minimum_age:
         type: float
+      races:
+        type: keyword
+      ethnicities:
+        type: keyword
+      sexes:
+        type: keyword
+      genders:
+        type: keyword
       
     # Cypher query will be used to retrieve data from Neo4j, and index into Elasticsearch
     cypher_query: "
-            MATCH (study:study)
+      MATCH (study:study)
       OPTIONAL MATCH (study)<-[:associated_with]-(data:data_file)
       MATCH (study)<-[:associated_with]-(neoplasm:primary_diagnosis)
       OPTIONAL MATCH (study)<-[:associated_with]-(data_collection:data_collection)
@@ -550,9 +558,9 @@ Indices:
       END
       RETURN
       neoplasm.primary_diagnosis_disease_term as primary_diagnosis_disease_term,
-      COLLECT(DISTINCT(study.study_short_name)) as study_short_name,
-      COLLECT(DISTINCT(study.study_type)) as study_type,
-      COLLECT(DISTINCT(study.study_design)) as study_design,
+      study.study_short_name as study_short_name,
+      study.study_type as study_type,
+      study.study_design as study_design,
       COLLECT(DISTINCT(study.biospecimen_collection)) as biospecimen_collection,
       COLLECT(DISTINCT(data.data_file_uuid)) as data_file_uuid,
       COLLECT(DISTINCT(study.number_of_participants)) as number_of_participants,
@@ -565,6 +573,10 @@ Indices:
       Collect(distinct(country.study_country)) as study_country,
       Collect(distinct(study_demo.study_participant_maximum_age)) as study_participant_maximum_age,
       Collect(distinct(study_demo.study_participant_median_age)) as study_participant_median_age,
-      Collect(distinct(study_demo.study_participant_minimum_age)) as study_participant_minimum_age 
+      Collect(distinct(study_demo.study_participant_minimum_age)) as study_participant_minimum_age,
+      split(study_demo.race, '|') AS races,
+      split(study_demo.ethnicity, '|') as ethnicities,
+      split(study_demo.sex, '|') as sexes,
+      split(study_demo.gender, '|') as genders
       "
   
