@@ -19,6 +19,8 @@ type SearchResult {
   filterStudyCountByStudyDesign: [TypeCount]
   studyCountByNeoplasm: [TypeCount]
   filterStudyCountByNeoplasm: [TypeCount]
+  neoplasmCountByStudy: [TypeCount]
+  filterNeoplasmCountByStudy: [TypeCount]
   studyCountByCountries: [TypeCount]
   filterStudyCountByCountries: [TypeCount]
   studyCountByDataCollection: [TypeCount]
