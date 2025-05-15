@@ -1,7 +1,7 @@
 queries:
   - name: studyGeneral
     index:
-      - study_overview
+      - study_overview_legacy
     filter:
       type: default
       rangeFilterFields:
@@ -19,7 +19,7 @@ queries:
       type: object_array
   - name: globalStatsBar
     index:
-      - global_stats_bar
+      - global_stats_bar_legacy
     filter:
       type: default
       rangeFilterFields:
@@ -35,7 +35,7 @@ queries:
       type: object_array
   - name: dataCollectionPage
     index:
-      - data_collection
+      - data_collection_legacy
     filter:
       rangeFilterFields:
             - study_participant_minimum_age
@@ -51,7 +51,7 @@ queries:
       type: object_array
   - name: tabStudy
     index:
-      - tab_study
+      - tab_study_legacy
     filter:
       type: pagination
       defaultSortField: study_short_name
@@ -70,7 +70,7 @@ queries:
       type: object_array
   - name: minMaxBoundQuery
     index:
-      - min_max_bound_query
+      - min_max_bound_query_legacy
     filter:
       type: default
     result:
