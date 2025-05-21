@@ -157,6 +157,35 @@ type TabStudy {
   enrollment_age: String
   data_collection:[data_collection]
 }
+type GroupCounts {
+  group: String
+  subjects: Int
+}
+type StudyDemographics {
+    study_name: String
+    study_short_name: String
+    study_description: String
+    study_type: String
+    study_design: String
+    enrollment_beginning_year: String
+    enrollment_ending_year: String
+    enrollment_period: String
+    study_beginning_year: String
+    study_ending_year: String
+    study_period: String
+    biospecimen_collection: String
+    study_status: String
+    dbgap_accession_id: String
+    number_of_participants: Int
+    participant_maximum_age: Float
+    participant_minimum_age: Float
+    participant_mean_age: Float
+    participant_median_age: Float
+    participant_races: [GroupCounts]
+    participant_ethnicities: [GroupCounts]
+    participant_sexes: [GroupCounts]
+}
+
 
 schema {
   query: QueryType
@@ -209,6 +238,16 @@ type QueryType {
       offset: Int = 0
   ): [TabStudy]
   
+
+
+  studyDemographics(
+      study_short_name: [String] = []
+      order_by: String = "study_short_name"
+      sort_direction: String = "asc"
+      first: Int = 10
+      offset: Int = 0
+  ): [StudyDemographics]
+
   globalStatsBar(
       study_short_name: [String] = []
       study_type: [String] = []

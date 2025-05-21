@@ -68,6 +68,23 @@ queries:
         subject_id: study_name
     result:
       type: object_array
+  - name: studyDemographics
+    index:
+      - study_demographics
+    filter:
+      type: pagination
+      defaultSortField: study_short_name
+      rangeFilterFields:
+            - study_participant_minimum_age
+            - number_of_participants
+            - study_beginning_year
+            - study_ending_year
+            - enrollment_beginning_year
+            - enrollment_ending_year
+            - study_participant_minimum_age
+            - study_participant_maximum_age
+    result:
+      type: object_array
   - name: minMaxBoundQuery
     index:
       - min_max_bound_query_legacy
