@@ -177,6 +177,7 @@ type StudyDemographics {
     study_status: String
     dbgap_accession_id: String
     number_of_participants: Int
+    participant_age_range: String
     participant_maximum_age: Float
     participant_minimum_age: Float
     participant_mean_age: Float
