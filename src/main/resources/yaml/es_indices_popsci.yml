@@ -69,9 +69,6 @@ Indices:
 
     # Cypher query will be used to retrieve data from Neo4j, and index into Elasticsearch
     cypher_query: "
-      
-       
-      
        
          MATCH (study)<-[:associated_with]-(participant:participant)
         UNWIND participant.participant_race AS race_raw

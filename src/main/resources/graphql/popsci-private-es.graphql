@@ -178,10 +178,10 @@ type StudyDemographics {
     dbgap_accession_id: String
     number_of_participants: Int
     participant_age_range: String
-    participant_maximum_age: Float
-    participant_minimum_age: Float
-    participant_mean_age: Float
-    participant_median_age: Float
+    participant_maximum_age: Int
+    participant_minimum_age: Int
+    participant_mean_age: Int
+    participant_median_age: Int
     participant_races: [GroupCounts]
     participant_ethnicities: [GroupCounts]
     participant_sexes: [GroupCounts]
