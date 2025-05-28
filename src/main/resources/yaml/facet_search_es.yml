@@ -12,7 +12,7 @@ queries:
     returnFields:
       - name: numberOfStudies
         index:
-          - tab_study
+          - tab_study_legacy
         filter:
           rangeFilterFields:
             - study_participant_minimum_age
@@ -30,7 +30,7 @@ queries:
           method: count_bucket_keys
       - name: numberOfDataCollectionCatagory
         index:
-          - global_stats_bar
+          - global_stats_bar_legacy
         filter:
           type: aggregation
           selectedField: data_collection_category
@@ -39,7 +39,7 @@ queries:
           method: count_bucket_keys
       - name: numberOfDiagnosis
         index:
-          - global_stats_bar
+          - global_stats_bar_legacy
         filter:
           type: aggregation
           selectedField: primary_diagnosis_disease_term
@@ -48,7 +48,7 @@ queries:
           method: count_bucket_keys
       - name: numberOfDataFiles
         index:
-          - global_stats_bar
+          - global_stats_bar_legacy
         filter:
           type: aggregation
           selectedField: data_file_uuid
@@ -57,7 +57,7 @@ queries:
           method: count_bucket_keys
       - name: studyCountByStudy
         index:
-          - tab_study
+          - tab_study_legacy
         filter:
           type: aggregation
           selectedField: study_short_name
@@ -65,7 +65,7 @@ queries:
           type: group_count
       - name: filterStudyCountByStudy
         index:
-          - tab_study
+          - tab_study_legacy
         filter:
           type: aggregation
           selectedField: study_short_name
@@ -74,7 +74,7 @@ queries:
           type: group_count
       - name: studyCountByStudyType
         index:
-          - tab_study
+          - tab_study_legacy
         filter:
           type: aggregation
           selectedField: study_type
@@ -82,7 +82,7 @@ queries:
           type: group_count
       - name: filterStudyCountByStudyType
         index:
-          - tab_study
+          - tab_study_legacy
         filter:
           type: aggregation
           selectedField: study_type
@@ -91,7 +91,7 @@ queries:
           type: group_count
       - name: studyCountByStudyDesign
         index:
-          - tab_study
+          - tab_study_legacy
         filter:
           type: aggregation
           selectedField: study_design
@@ -99,7 +99,7 @@ queries:
           type: group_count
       - name: filterStudyCountByStudyDesign
         index:
-          - tab_study
+          - tab_study_legacy
         filter:
           type: aggregation
           selectedField: study_design
@@ -108,7 +108,7 @@ queries:
           type: group_count
       - name: studyCountByNeoplasm
         index:
-          - tab_study
+          - tab_study_legacy
         filter:
           type: aggregation
           selectedField: primary_diagnosis_disease_term
@@ -116,7 +116,7 @@ queries:
           type: group_count
       - name: filterStudyCountByNeoplasm
         index:
-          - tab_study
+          - tab_study_legacy
         filter:
           type: aggregation
           selectedField: primary_diagnosis_disease_term
@@ -125,7 +125,7 @@ queries:
           type: group_count
       - name: studyCountByCountries
         index:
-          - tab_study
+          - tab_study_legacy
         filter:
           type: aggregation
           selectedField: study_country
@@ -133,7 +133,7 @@ queries:
           type: group_count
       - name: filterStudyCountByCountries
         index:
-          - tab_study
+          - tab_study_legacy
         filter:
           type: aggregation
           selectedField: study_country
@@ -142,7 +142,7 @@ queries:
           type: group_count
       - name: studyCountByDataCollection
         index:
-          - tab_study
+          - tab_study_legacy
         filter:
           type: aggregation
           selectedField: data_collection_category
@@ -150,7 +150,7 @@ queries:
           type: group_count
       - name: filterStudyCountByDataCollection
         index:
-          - tab_study
+          - tab_study_legacy
         filter:
           type: aggregation
           selectedField: data_collection_category
@@ -159,7 +159,7 @@ queries:
           type: group_count
       - name: studyCountByBiospecimenCollection
         index:
-          - tab_study
+          - tab_study_legacy
         filter:
           type: aggregation
           selectedField: biospecimen_collection
@@ -167,7 +167,7 @@ queries:
           type: group_count
       - name: filterStudyCountByBiospecimenCollection
         index:
-          - tab_study
+          - tab_study_legacy
         filter:
           type: aggregation
           selectedField: biospecimen_collection
@@ -176,7 +176,7 @@ queries:
           type: group_count
       - name: studyCountByRace
         index:
-          - tab_study
+          - tab_study_legacy
         filter:
           type: aggregation
           selectedField: races
@@ -184,7 +184,7 @@ queries:
           type: group_count
       - name: filterStudyCountByRace
         index:
-          - tab_study
+          - tab_study_legacy
         filter:
           type: aggregation
           selectedField: races
@@ -193,7 +193,7 @@ queries:
           type: group_count
       - name: studyCountByEthnicity
         index:
-          - tab_study
+          - tab_study_legacy
         filter:
           type: aggregation
           selectedField: ethnicities
@@ -201,7 +201,7 @@ queries:
           type: group_count
       - name: filterStudyCountByEthnicity
         index:
-          - tab_study
+          - tab_study_legacy
         filter:
           type: aggregation
           selectedField: ethnicities
@@ -210,7 +210,7 @@ queries:
           type: group_count
       - name: studyCountBySex
         index:
-          - tab_study
+          - tab_study_legacy
         filter:
           type: aggregation
           selectedField: sexes
@@ -218,7 +218,7 @@ queries:
           type: group_count
       - name: filterStudyCountBySex
         index:
-          - tab_study
+          - tab_study_legacy
         filter:
           type: aggregation
           selectedField: sexes
@@ -227,7 +227,7 @@ queries:
           type: group_count
       - name: neoplasmCountByStudy
         index:
-          - neoplasm_query
+          - neoplasm_query_legacy
         filter:
           type: aggregation
           selectedField: study_short_name
@@ -235,7 +235,7 @@ queries:
           type: group_count
       - name: filterNeoplasmCountByStudy
         index:
-          - neoplasm_query
+          - neoplasm_query_legacy
         filter:
           type: aggregation
           selectedField: study_short_name
@@ -243,7 +243,7 @@ queries:
           type: group_count
       - name: studyCountByGender
         index:
-          - tab_study
+          - tab_study_legacy
         filter:
           type: aggregation
           selectedField: genders
@@ -251,7 +251,7 @@ queries:
           type: group_count
       - name: filterStudyCountByGender
         index:
-          - tab_study
+          - tab_study_legacy
         filter:
           type: aggregation
           selectedField: genders
@@ -260,7 +260,7 @@ queries:
           type: group_count
       - name: studyPeriodMin
         index:
-          - tab_study
+          - tab_study_legacy
         filter:
           type: range
           selectedField: study_beginning_year
@@ -270,7 +270,7 @@ queries:
           type: range
       - name: studyPeriodMax
         index:
-          - tab_study
+          - tab_study_legacy
         filter:
           type: range
           selectedField: study_ending_year
@@ -280,7 +280,7 @@ queries:
           type: range
       - name: studyCountByNumberOfParticipants
         index:
-          - tab_study
+          - tab_study_legacy
         filter:
           type: range
           selectedField: number_of_participants
@@ -297,7 +297,7 @@ queries:
           type: range
       - name: participantAgeAtEnrollmentMin
         index:
-          - tab_study
+          - tab_study_legacy
         filter:
           type: range
           selectedField: study_participant_minimum_age
@@ -314,7 +314,7 @@ queries:
           type: range
       - name: participantAgeAtEnrollmentMax
         index:
-          - tab_study
+          - tab_study_legacy
         filter:
           type: range
           selectedField: study_participant_maximum_age
@@ -324,7 +324,7 @@ queries:
           type: range
       - name: enrollmentPeriodMax
         index:
-          - tab_study
+          - tab_study_legacy
         filter:
           type: range
           ignoreSelectedField: true
@@ -335,7 +335,7 @@ queries:
           type: range
       - name: enrollmentPeriodMin
         index:
-          - tab_study
+          - tab_study_legacy
         filter:
           type: range
           ignoreSelectedField: true
@@ -346,7 +346,7 @@ queries:
           type: range
       - name: dataVolume
         index:
-          - data_volume_query
+          - data_volume_query_legacy
         filter:
           type: sum
           selectedField: data_volume
