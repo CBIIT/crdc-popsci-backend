@@ -116,10 +116,10 @@ Indices:
               study.study_design as study_design,
               study.enrollment_beginning_year as enrollment_beginning_year,
               toInteger(study.enrollment_ending_year) as enrollment_ending_year,
-              toInteger(study.enrollment_beginning_year) + ' - ' + toInteger(study.enrollment_ending_year)  as enrollment_period,
+              toString(toInteger(study.enrollment_beginning_year)) + ' - ' + toString(toInteger(study.enrollment_ending_year))  as enrollment_period,
               study.study_beginning_year as study_beginning_year,
               toInteger(study.study_ending_year) as study_ending_year,
-              toInteger(study.study_beginning_year) + ' - ' + COALESCE(study.study_ending_year,'On Going') as study_period,
+              toString(toInteger(study.study_beginning_year)) + ' - ' + toString(COALESCE(study.study_ending_year,'On Going')) as study_period,
               study.biospecimen_collection as biospecimen_collection,
               study.study_status as study_status,
               study.dbgap_accession_id as dbgap_accession_id,
@@ -128,6 +128,6 @@ Indices:
               toInteger(round(apoc.agg.median(participant.age_at_enrollment / 365.25)))  as participant_median_age,
               toInteger(round(avg(participant.age_at_enrollment / 365.25))) as participant_mean_age,
               toInteger(round(min(participant.age_at_enrollment / 365.25))) as participant_minimum_age,
-              toInteger(round(min(participant.age_at_enrollment / 365.25))) + ' - '   + toInteger(round(max(participant.age_at_enrollment / 365.25))) as participant_age_range
+              toString(toInteger(round(min(participant.age_at_enrollment / 365.25)))) + ' - '   + toString(toInteger(round(max(participant.age_at_enrollment / 365.25)))) as participant_age_range
               
       "
