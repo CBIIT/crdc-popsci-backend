@@ -185,6 +185,7 @@ type StudyDemographics {
     participant_races: [GroupCounts]
     participant_ethnicities: [GroupCounts]
     participant_sexes: [GroupCounts]
+    participant_count_by_age: [GroupCounts]
 }
 
 
