@@ -118,6 +118,7 @@ Indices:
           participant_races, participant_sexes,participant_ethnicities
 
         WITH toString(age_band_start) + '-' + toString(age_band_end)  AS age_group_label,participant_count,age_band_start,participant_races, participant_sexes,participant_ethnicities
+        ORDER BY age_group_label
         MATCH (study:study)<-[:associated_with]-(participant:participant)
        
 
