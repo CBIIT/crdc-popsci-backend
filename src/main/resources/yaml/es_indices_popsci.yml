@@ -111,12 +111,12 @@ Indices:
 
         MATCH (study:study)<-[:associated_with]-(participant:participant)
         WITH toInteger(participant.age_at_enrollment / 365.25) AS age_in_years,participant_races,participant_sexes,participant_ethnicities
-        WITH toInteger(floor(age_in_years / 4) * 5) AS age_band_start, count(*) AS participant_count,participant_races, participant_sexes,participant_ethnicities
+        WITH toInteger(floor(age_in_years / 5) * 5) AS age_band_start, count(*) AS participant_count,participant_races, participant_sexes,participant_ethnicities
         WITH age_band_start,
-          toInteger(age_band_start) + 5 AS age_band_end,
+          toInteger(age_band_start) + 4 AS age_band_end,
           participant_count,
           participant_races, participant_sexes,participant_ethnicities
-
+          
         WITH toString(age_band_start) + '-' + toString(age_band_end)  AS age_group_label,participant_count,age_band_start,participant_races, participant_sexes,participant_ethnicities
         ORDER BY age_group_label
         MATCH (study:study)<-[:associated_with]-(participant:participant)
