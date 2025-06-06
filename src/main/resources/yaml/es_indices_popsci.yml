@@ -77,50 +77,60 @@ Indices:
     # Cypher query will be used to retrieve data from Neo4j, and index into Elasticsearch
     cypher_query: "
                 
-         MATCH (study)<-[:associated_with]-(participant:participant)
+    
+         MATCH (study:study)<-[:associated_with]-(participant:participant)
+
         UNWIND participant.participant_race AS race_raw
         UNWIND split(toLower(race_raw), '|') AS race_group
-        WITH trim(race_group) as race_group, count(*) AS race_group_count
+        WITH trim(race_group) as race_group, count(*) AS race_group_count,study
 
 
         WITH collect(DISTINCT {
             group: race_group,
             subjects: race_group_count
-        }) AS participant_races
+        }) AS participant_races,study
 
 
         MATCH (study)<-[:associated_with]-(participant:participant)
         UNWIND participant.participant_sex AS sex_raw
         UNWIND split(toLower(sex_raw), '|') AS sex_group
         WITH participant_races, trim(sex_group) as sex_group, count(*) AS sex_group_count
+        ,study
 
 
         WITH participant_races, collect(DISTINCT {
             group: sex_group,
             subjects: sex_group_count
-        }) AS participant_sexes 
+        }) AS participant_sexes,study 
         MATCH (study)<-[:associated_with]-(participant:participant)
         UNWIND participant.participant_ethnicity AS ethnicity_raw
         UNWIND split(toLower(ethnicity_raw), '|') AS ethnicity_group
         WITH participant_races, participant_sexes, trim(ethnicity_group) as ethnicity_group, count(*) AS ethnicity_group_count
+        ,study
           WITH participant_races,participant_sexes,collect(DISTINCT {
             group: ethnicity_group,
             subjects: ethnicity_group_count
-        }) AS participant_ethnicities 
+        }) AS participant_ethnicities
+        ,study
 
 
-        MATCH (study:study)<-[:associated_with]-(participant:participant)
+        MATCH (study)<-[:associated_with]-(participant:participant)
+
         WITH toInteger(participant.age_at_enrollment / 365.25) AS age_in_years,participant_races,participant_sexes,participant_ethnicities
+        ,study
         WITH toInteger(floor(age_in_years / 5) * 5) AS age_band_start, count(*) AS participant_count,participant_races, participant_sexes,participant_ethnicities
+        ,study
         WITH age_band_start,
           toInteger(age_band_start) + 4 AS age_band_end,
           participant_count,
           participant_races, participant_sexes,participant_ethnicities
+          ,study
           
-        WITH toString(age_band_start) + '-' + toString(age_band_end)  AS age_group_label,participant_count,age_band_start,participant_races, participant_sexes,participant_ethnicities
+        WITH toString(age_band_start) + ' to ' + toString(age_band_end)  AS age_group_label,participant_count,age_band_start,participant_races, participant_sexes,participant_ethnicities
+        ,study
         ORDER BY age_group_label
         MATCH (study:study)<-[:associated_with]-(participant:participant)
-       
+ 
 
         RETURN
         collect(DISTINCT{
@@ -151,4 +161,6 @@ Indices:
               toInteger(round(avg(participant.age_at_enrollment / 365.25))) as participant_mean_age,
               toInteger(round(min(participant.age_at_enrollment / 365.25))) as participant_minimum_age,
               toInteger(round(min(participant.age_at_enrollment / 365.25))) + ' - '   + toInteger(round(max(participant.age_at_enrollment / 365.25))) as participant_age_range
+      
+
       "
