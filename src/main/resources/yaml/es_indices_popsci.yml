@@ -32,13 +32,13 @@ Indices:
       number_of_participants:
         type: integer
       participant_maximum_age:
-        type: float
+        type: integer
       participant_median_age:
-        type: float
+        type: integer
       participant_minimum_age:
-        type: float
+        type: integer
       participant_mean_age:
-        type: float
+        type: integer
       enrollment_period:
         type: keyword
       study_period:
@@ -146,7 +146,7 @@ Indices:
               study.study_description as study_description,
               study.study_type as study_type,
               study.study_design as study_design,
-              study.enrollment_beginning_year as enrollment_beginning_year,
+              toString(study.enrollment_beginning_year) as enrollment_beginning_year,
               toInteger(study.enrollment_ending_year) as enrollment_ending_year,
               toInteger(study.enrollment_beginning_year) + ' - ' + toInteger(study.enrollment_ending_year)  as enrollment_period,
               study.study_beginning_year as study_beginning_year,
