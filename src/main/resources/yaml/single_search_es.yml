@@ -1,11 +1,10 @@
 queries:
   - name: studyGeneral
     index:
-      - study_overview
+      - study_overview_legacy
     filter:
       type: default
       rangeFilterFields:
-            - study_participant_minimum_age
             - number_of_participants
             - study_beginning_year
             - study_ending_year
@@ -19,11 +18,10 @@ queries:
       type: object_array
   - name: globalStatsBar
     index:
-      - global_stats_bar
+      - global_stats_bar_legacy
     filter:
       type: default
       rangeFilterFields:
-            - study_participant_minimum_age
             - number_of_participants
             - study_beginning_year
             - study_ending_year
@@ -35,10 +33,9 @@ queries:
       type: object_array
   - name: dataCollectionPage
     index:
-      - data_collection
+      - data_collection_legacy
     filter:
       rangeFilterFields:
-            - study_participant_minimum_age
             - number_of_participants
             - study_beginning_year
             - study_ending_year
@@ -51,12 +48,11 @@ queries:
       type: object_array
   - name: tabStudy
     index:
-      - tab_study
+      - tab_study_legacy
     filter:
       type: pagination
       defaultSortField: study_short_name
       rangeFilterFields:
-            - study_participant_minimum_age
             - number_of_participants
             - study_beginning_year
             - study_ending_year
@@ -68,9 +64,25 @@ queries:
         subject_id: study_name
     result:
       type: object_array
+  - name: studyDemographics
+    index:
+      - study_demographics
+    filter:
+      type: pagination
+      defaultSortField: study_short_name
+      rangeFilterFields:
+            - number_of_participants
+            - study_beginning_year
+            - study_ending_year
+            - enrollment_beginning_year
+            - enrollment_ending_year
+            - study_participant_minimum_age
+            - study_participant_maximum_age
+    result:
+      type: object_array
   - name: minMaxBoundQuery
     index:
-      - min_max_bound_query
+      - min_max_bound_query_legacy
     filter:
       type: default
     result:
