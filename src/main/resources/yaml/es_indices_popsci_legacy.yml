@@ -1,7 +1,7 @@
 Indices:
   # First index
   # Name of the index to be created, existing index with same name will be deleted
-  - index_name: study_overview
+  - index_name: study_overview_legacy
     type: neo4j
     # type mapping for each property of the index
     mapping:
@@ -112,7 +112,7 @@ Indices:
         associated_link_url: links.associated_link_url
        }) as associated_links
       "
-  - index_name: data_volume_query
+  - index_name: data_volume_query_legacy
     type: neo4j
     # type mapping for each property of the index
     mapping:
@@ -204,7 +204,7 @@ Indices:
       study_demo.study_participant_median_age as study_participant_median_age,
       study_demo.study_participant_minimum_age as study_participant_minimum_age 
       "
-  - index_name: global_stats_bar
+  - index_name: global_stats_bar_legacy
     type: neo4j
     # type mapping for each property of the index
     mapping:
@@ -293,7 +293,7 @@ Indices:
       study_demo.study_participant_median_age as study_participant_median_age,
       study_demo.study_participant_minimum_age as study_participant_minimum_age 
       "
-  - index_name: data_collection
+  - index_name: data_collection_legacy
     type: neo4j
   # type mapping for each property of the index
     mapping:
@@ -317,7 +317,7 @@ Indices:
       data_collection_category_annotation_count:data_collection.data_collection_category_annotation_count
       }) as data_collection
       "
-  - index_name: tab_study
+  - index_name: tab_study_legacy
     type: neo4j
     # type mapping for each property of the index
     mapping:
@@ -427,10 +427,10 @@ Indices:
       study.study_design as study_design,
       toInteger(study.enrollment_beginning_year) as enrollment_beginning_year,
       toInteger(study.enrollment_ending_year) as enrollment_ending_year,
-      toInteger(study.enrollment_beginning_year) + ' - ' +  toInteger(study.enrollment_ending_year)  as enrollment_period,
+      toString(toInteger(study.enrollment_beginning_year)) + ' - ' +  toString(toInteger(study.enrollment_ending_year))  as enrollment_period,
       study.study_beginning_year as study_beginning_year,
       toInteger(study.study_ending_year) as study_ending_year,
-      toInteger(study.study_beginning_year) + ' - ' + COALESCE(study.study_ending_year,'On Going') as study_period,
+      toString(toInteger(study.study_beginning_year)) + ' - ' + toString(COALESCE(study.study_ending_year,'On Going')) as study_period,
       study.biospecimen_collection as biospecimen_collection,
       study.study_status as study_status,
       study.dbgap_accession_id as dbgap_accession_id,
@@ -438,7 +438,7 @@ Indices:
       study_demo.study_participant_maximum_age as study_participant_maximum_age,
       study_demo.study_participant_median_age as study_participant_median_age,
       study_demo.study_participant_minimum_age as study_participant_minimum_age,
-      toInteger(study_demo.study_participant_minimum_age) + ' - '   + toInteger(study_demo.study_participant_maximum_age) as enrollment_age,
+      toString(toInteger(study_demo.study_participant_minimum_age)) + ' - '   + toString(toInteger(study_demo.study_participant_maximum_age)) as enrollment_age,
       study_demo.race as race,
       study_demo.ethnicity as ethnicity,
       study_demo.sex as sex,
@@ -460,7 +460,7 @@ Indices:
       COLLECT(DISTINCT(data.data_file_uuid)) as data_file_uuid
       "
   # Index for max and min values to help absolute lower and upper bound
-  - index_name: min_max_bound_query
+  - index_name: min_max_bound_query_legacy
     type: neo4j
     mapping:
       number_of_participant_upper_bound:
@@ -493,7 +493,7 @@ Indices:
       min(study_demo.study_participant_minimum_age) as participant_minimum_age_lower_bound,
       max(study_demo.study_participant_maximum_age) as participant_maximum_age_upper_bound
       "
-  - index_name: neoplasm_query
+  - index_name: neoplasm_query_legacy
     type: neo4j
     # type mapping for each property of the index
     mapping:
