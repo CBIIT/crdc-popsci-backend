@@ -80,6 +80,13 @@ queries:
             - study_participant_maximum_age
     result:
       type: object_array
+  - name: primarySiteMorphology
+    index:
+      - study_cancer_counts
+    filter:
+       type: default
+    result:
+      type: object_array
   - name: minMaxBoundQuery
     index:
       - min_max_bound_query_legacy

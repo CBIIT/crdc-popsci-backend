@@ -157,9 +157,19 @@ type TabStudy {
   enrollment_age: String
   data_collection:[data_collection]
 }
+type DiagnosisCodes {
+  group: String
+  group_code: String
+  subjects: Int
+}
 type GroupCounts {
   group: String
   subjects: Int
+}
+type PrimarySiteMorphology {
+  study_short_name: String
+  cancer_diagnosis_disease_morphology_collection: [DiagnosisCodes]
+  cancer_diagnosis_primary_site_collection: [DiagnosisCodes]
 }
 type StudyDemographics {
     study_name: String
@@ -241,6 +251,13 @@ type QueryType {
   ): [TabStudy]
   
 
+   primarySiteMorphology(
+      study_short_name: [String] = []
+      order_by: String = "study_short_name"
+      sort_direction: String = "asc"
+      first: Int = 10
+      offset: Int = 0
+  ): [PrimarySiteMorphology]
 
   studyDemographics(
       study_short_name: [String] = []
