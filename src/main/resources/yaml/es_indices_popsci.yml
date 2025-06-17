@@ -149,7 +149,7 @@ Indices:
               toString(study.enrollment_beginning_year) as enrollment_beginning_year,
               toInteger(study.enrollment_ending_year) as enrollment_ending_year,
               toInteger(study.enrollment_beginning_year) + ' - ' + toInteger(study.enrollment_ending_year)  as enrollment_period,
-              study.study_beginning_year as study_beginning_year,
+              toInteger(study.study_beginning_year) as study_beginning_year,
               toInteger(study.study_ending_year) as study_ending_year,
               toInteger(study.study_beginning_year) + ' - ' + COALESCE(study.study_ending_year,'On Going') as study_period,
               study.biospecimen_collection as biospecimen_collection,

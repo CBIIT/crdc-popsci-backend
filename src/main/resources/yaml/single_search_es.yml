@@ -78,13 +78,19 @@ queries:
             - enrollment_ending_year
             - study_participant_minimum_age
             - study_participant_maximum_age
+      ignoreIfEmpty:
+        - study_short_name
     result:
       type: object_array
+
   - name: primarySiteMorphology
     index:
       - study_cancer_counts
     filter:
-       type: default
+      type: pagination
+      defaultSortField: study_short_name
+      ignoreIfEmpty:
+        - study_short_name
     result:
       type: object_array
   - name: minMaxBoundQuery
