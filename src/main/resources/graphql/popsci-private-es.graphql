@@ -295,7 +295,7 @@ type QueryType {
       study_beginning_year: [Int] = []
       study_ending_year: [Int] = []
       biospecimen_collection: [String] = []
-      cancer_diagnosis_primary_site_count: [String] = []
+      cancer_diagnosis_primary_site_count: [Int] = []
       number_of_participants: [Int] = []
       study_participant_maximum_age: [Float] = []
       study_participant_median_age: [Float] = []
