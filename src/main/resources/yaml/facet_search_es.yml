@@ -346,7 +346,7 @@ queries:
           type: range
       - name: dataVolume
         index:
-          - data_volume_query_legacy
+          - data_volume_query
         filter:
           type: sum
           selectedField: data_volume
