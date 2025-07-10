@@ -48,7 +48,7 @@ queries:
           method: count_bucket_keys
       - name: numberOfDataFiles
         index:
-          - global_stats_bar_legacy
+          - data_volume_query
         filter:
           type: aggregation
           selectedField: data_file_uuid

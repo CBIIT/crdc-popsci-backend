@@ -368,6 +368,8 @@ Indices:
         type: keyword
       data_file_type:
         type: keyword
+      data_file_access_control:
+        type: keyword
       data_file_description:
         type: keyword
       data_file_format:
