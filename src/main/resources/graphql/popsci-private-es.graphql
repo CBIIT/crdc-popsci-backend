@@ -179,6 +179,7 @@ type PrimarySiteMorphology {
   study_short_name: String
   cancer_diagnosis_disease_morphology_collection: [DiagnosisCodes]
   cancer_diagnosis_primary_site_collection: [DiagnosisCodes]
+  data_collection_category_count: Int
 }
 type StudyDemographics {
     study_name: String

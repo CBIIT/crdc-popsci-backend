@@ -191,6 +191,8 @@ Indices:
             type: keyword
           subjects:
             type: keyword
+      data_collection_category_count:
+        type: integer
 
     # Cypher query will be used to retrieve data from Neo4j, and index into Elasticsearch
     cypher_query:
@@ -199,6 +201,7 @@ Indices:
         with count(participant) as cancer_diagnosis_disease_morphology_count,participant.cancer_diagnosis_disease_morphology as cancer_diagnosis_disease_morphology,participant.`ICD-O-3 Code_disease_morphology` as code_morphology,study
         MATCH (study)<-[:associated_with]-(participant:participant)
         with count(participant) as cancer_diagnosis_primary_site_count,participant.cancer_diagnosis_primary_site as cancer_diagnosis_primary_site,cancer_diagnosis_disease_morphology,cancer_diagnosis_disease_morphology_count,study,code_morphology,participant.`ICD-O-3 Code_primary_site` as code_primary_site
+        OPTIONAL MATCH (study)<-[:associated_with]-(data_collection:data_collection)
         RETURN 
             study.study_short_name as study_short_name,
             study.study_id as study_id,
@@ -210,7 +213,8 @@ Indices:
           Collect(Distinct{
           group:cancer_diagnosis_primary_site,
           group_code:code_primary_site,
-          subjects:cancer_diagnosis_primary_site_count }) as cancer_diagnosis_primary_site_collection 
+          subjects:cancer_diagnosis_primary_site_count }) as cancer_diagnosis_primary_site_collection,
+          count(distinct(data_collection.data_collection_category)) as data_collection_category_count
      "
   - index_name: global_stats_bar
     type: neo4j
@@ -277,6 +281,7 @@ Indices:
         type: keyword
       cancer_diagnosis_primary_site_count:
         type: integer
+      
    # Cypher query will be used to retrieve data from Neo4j, and index into Elasticsearch
     cypher_query:
        " 
@@ -317,7 +322,7 @@ Indices:
           optional MATCH (study)<-[:associated_with]-(country:study_country) 
           optional MATCH (study)<-[:associated_with]-(state:study_state_province_territory)
           optional MATCH (study)<-[:associated_with]-(neoplasm:primary_diagnosis)
-          OPTIONAL MATCH (study)<-[:associated_with]-(data_collection:data_collection)
+          
           RETURN
             participant_races,
             participant_sexes,

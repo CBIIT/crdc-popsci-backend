@@ -30,7 +30,7 @@ queries:
           method: count_bucket_keys
       - name: numberOfDataCollectionCatagory
         index:
-          - global_stats_bar_legacy
+          - global_stats_bar
         filter:
           type: aggregation
           selectedField: data_collection_category
