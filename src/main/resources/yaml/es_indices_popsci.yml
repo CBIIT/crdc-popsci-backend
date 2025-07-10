@@ -418,6 +418,7 @@ Indices:
       data.data_file_size as data_volume,
       data.data_file_name as data_file_name,
       data.data_file_type as data_file_type,
+      data.data_file_access_control as data_file_access_control,
       data.data_file_description as data_file_description,
       data.data_file_format as data_file_format,
       study.number_of_participants as number_of_participants,

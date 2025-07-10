@@ -106,6 +106,7 @@ type StudyFiles{
     data_file_type: String
     data_file_description: String
     data_file_format: String
+    data_file_access_control: String
     data_volume: Float
     data_file_uuid: String
 }
