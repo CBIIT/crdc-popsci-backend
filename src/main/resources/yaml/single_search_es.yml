@@ -18,7 +18,7 @@ queries:
       type: object_array
   - name: globalStatsBar
     index:
-      - global_stats_bar_legacy
+      - global_stats_bar
     filter:
       type: default
       rangeFilterFields:
@@ -92,5 +92,13 @@ queries:
       - min_max_bound_query_legacy
     filter:
       type: default
+    result:
+      type: object_array
+  - name: studyFiles
+    index:
+      - data_volume_query
+    filter:
+      type: pagination
+      defaultSortField: study_short_name
     result:
       type: object_array
