@@ -102,13 +102,18 @@ type data_file {
 }
 
 type StudyFiles{
-    data_file_name: String
-    data_file_type: String
-    data_file_description: String
-    data_file_format: String
-    data_file_access_control: String
-    data_volume: Float
-    data_file_uuid: String
+  data_file_name: String
+  data_file_type: String
+  data_file_description: String
+  data_file_format: String
+  data_file_access_control: String
+  data_file_location: String
+  data_file_signed_url: String
+  data_file_size: Int
+  data_volume: Float
+  data_file_checksum_value: String
+  data_file_uuid: String
+  drs_uri: String
 }
 type associated_links {
   associated_link_name: String
@@ -310,15 +315,21 @@ type QueryType {
       primary_diagnosis_disease_term: [String] = []
   ): [GlobalStatsBar]
   studyFiles(
-    study_short_name: [String] = []
+     study_short_name: [String] = []
     data_file_uuid: [String] = []
     data_file_name: [String] = []
     data_file_type: [String] = []
     data_file_description: [String] = []
     data_file_format: [String] = []
+    data_file_access_control: [String] = []
+    data_file_location: [String] = []
+    data_file_signed_url: [String] = []
+    data_file_size: [Int] = []
+    association: [String] = []
     sort_direction: String = "asc"
     first: Int = 10
     offset: Int = 0
+    order_by: String = "data_file_name"
   ): [StudyFiles]
   searchStudies(
     study_short_name: [String] = []

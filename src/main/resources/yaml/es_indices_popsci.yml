@@ -378,8 +378,6 @@ Indices:
         type: integer
       data_collection_category:
         type: keyword
-      primary_diagnosis_disease_term:
-        type: keyword
       enrollment_beginning_year:
         type: integer
       enrollment_ending_year:
@@ -400,10 +398,16 @@ Indices:
         type: float
       study_participant_minimum_age:
         type: float
+      data_file_checksum_value:
+        type: keyword
+      data_file_compression_status:
+        type: keyword
+      drs_uri:
+        type: keyword
       
     # Cypher query will be used to retrieve data from Neo4j, and index into Elasticsearch
     cypher_query: "
-      MATCH (study:study)
+       MATCH (study:study)
       OPTIONAL MATCH (study)<-[:associated_with]-(data:data_file)
       optional MATCH (study)<-[:associated_with]-(neoplasm:primary_diagnosis)
       OPTIONAL MATCH (study)<-[:associated_with]-(data_collection:data_collection)
@@ -411,24 +415,32 @@ Indices:
       optional MATCH (study)<-[:associated_with]-(study_demo:study_demographic)
       optional MATCH (study)<-[:associated_with]-(country:study_country)
       optional MATCH (study)<-[:associated_with]-(state:study_state_province_territory)
+
+     SET study.study_ending_year = REPLACE(toString(study.study_ending_year), ' ', '')
+      SET study.study_ending_year = CASE
+      WHEN toLower(trim(toString(study.study_ending_year))) CONTAINS 'ongoing' THEN REPLACE(toLower(trim(toString(study.study_ending_year))),study.study_ending_year, '3000')
+      ELSE study.study_ending_year
+      END
       RETURN
       study.study_short_name as study_short_name,
       study.study_type as study_type,
       study.study_design as study_design,
       study.biospecimen_collection as biospecimen_collection,
       data.data_file_uuid as data_file_uuid,
+      data.data_file_checksum_value as data_file_checksum_value,
       data.data_file_size as data_volume,
       data.data_file_name as data_file_name,
       data.data_file_type as data_file_type,
       data.data_file_access_control as data_file_access_control,
       data.data_file_description as data_file_description,
       data.data_file_format as data_file_format,
+      data.data_file_compression_status as data_file_compression_status,
+      'drs://nci-crdc.datacommons.io/' + data.data_file_uuid AS drs_uri,
       study.number_of_participants as number_of_participants,
       COLLECT(DISTINCT(data_collection.data_collection_category)) as data_collection_category,
-      COLLECT(DISTINCT(neoplasm.primary_diagnosis_disease_term)) as primary_diagnosis_disease_term,
       study.enrollment_beginning_year as enrollment_beginning_year,
       study.enrollment_ending_year as enrollment_ending_year,
-      toInteger(study.study_ending_year) as study_ending_year,
+      study.study_ending_year as study_ending_year,
       study.study_beginning_year as study_beginning_year,
       study.study_status as study_status,
       Collect(distinct(country.study_country)) as study_country,
