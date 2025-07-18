@@ -416,7 +416,7 @@ Indices:
       optional MATCH (study)<-[:associated_with]-(country:study_country)
       optional MATCH (study)<-[:associated_with]-(state:study_state_province_territory)
 
-     SET study.study_ending_year = replace(toString(study.study_ending_year), ' ', '')
+     SET study.study_ending_year = REPLACE(toString(study.study_ending_year), ' ', '')
       SET study.study_ending_year = CASE
       WHEN toLower(trim(toString(study.study_ending_year))) CONTAINS 'ongoing' THEN REPLACE(toLower(trim(toString(study.study_ending_year))),study.study_ending_year, '3000')
       ELSE study.study_ending_year
