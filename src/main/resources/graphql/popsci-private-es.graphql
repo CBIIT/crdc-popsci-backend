@@ -215,11 +215,20 @@ type StudyDemographics {
 }
 
 
+
 schema {
   query: QueryType
 }
 
 type QueryType {
+  filesInList(
+    data_file_uuid: [String]
+    order_by: String = ""
+    sort_direction: String = "ASC"
+    first: Int = 10
+    offset: Int = 0
+ ): [StudyFiles]
+
   studyGeneral(
      study_short_name: [String] = []
   ): [StudyGeneral]

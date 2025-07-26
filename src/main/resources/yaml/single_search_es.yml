@@ -102,3 +102,13 @@ queries:
       defaultSortField: study_short_name
     result:
       type: object_array
+  - name: filesInList # Support Cart Table
+    index:
+      - data_volume_query
+    filter:
+      type: pagination
+      defaultSortField: data_file_name
+      ignoreIfEmpty:
+        - data_file_uuid
+    result:
+      type: object_array
