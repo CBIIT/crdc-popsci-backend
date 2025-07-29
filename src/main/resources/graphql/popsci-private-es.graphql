@@ -6,8 +6,8 @@ type SearchResult {
   dataVolume: Float
   studyPeriodMin: RangeCount
   studyPeriodMax: RangeCount
-  enrollmentPeriodMin: RangeCount
   enrollmentPeriodMax: RangeCount
+  enrollmentPeriodMin: RangeCount
   participantAgeAtEnrollmentMin: RangeCount
   participantAgeAtEnrollmentMax: RangeCount
   studyCountByNumberOfParticipants: RangeCount
@@ -33,8 +33,6 @@ type SearchResult {
   filterStudyCountByEthnicity: [TypeCount]
   studyCountBySex: [TypeCount]
   filterStudyCountBySex: [TypeCount]
-  studyCountByGender: [TypeCount]
-  filterStudyCountByGender: [TypeCount]
 }
 type TypeCount {
     group: String
@@ -193,8 +191,8 @@ type StudyDemographics {
     study_description: String
     study_type: String
     study_design: String
-    enrollment_beginning_year: String
-    enrollment_ending_year: String
+    enrollment_beginning_year: Int
+    enrollment_ending_year: Int
     enrollment_period: String
     study_beginning_year: String
     study_ending_year: String
@@ -348,12 +346,10 @@ type QueryType {
     dbgap_accession_id: [String] = []
     associated_links: [String] = []
     number_of_participants: [Int] = []
-    study_participant_maximum_age: [Float] = []
-    study_participant_median_age: [Float] = []
-    study_participant_minimum_age: [Float] = []
-    races: [String] = []
-    ethnicities: [String] = []
-    sexes: [String] = []
+    study_participant_maximum_age: [Int] = []
+    study_participant_median_age: [Int] = []
+    study_participant_minimum_age: [Int] = []
+    
 
     study_country: [String] = []
     number_of_countries: [Int] = []
