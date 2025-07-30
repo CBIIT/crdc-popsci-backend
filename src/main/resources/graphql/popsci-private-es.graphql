@@ -4,7 +4,7 @@ type SearchResult {
   numberOfDiagnosis: Int
   numberOfDataFiles: Int
   dataVolume: Float
-  numberParticipants: Int
+
   studyPeriodMin: RangeCount
   studyPeriodMax: RangeCount
   enrollmentPeriodMax: RangeCount
