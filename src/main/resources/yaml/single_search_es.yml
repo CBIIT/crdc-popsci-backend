@@ -48,7 +48,7 @@ queries:
       type: object_array
   - name: tabStudy
     index:
-      - study_tab
+      - tab_study_legacy
     filter:
       type: pagination
       defaultSortField: study_short_name

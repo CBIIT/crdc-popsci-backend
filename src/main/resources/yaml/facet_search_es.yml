@@ -170,7 +170,7 @@ queries:
           - global_stats_bar
         filter:
           type: aggregation
-          selectedField: race
+          selectedField: races
         result:
           type: group_count
       - name: filterStudyCountByRace
@@ -178,7 +178,7 @@ queries:
           - global_stats_bar
         filter:
           type: aggregation
-          selectedField: race
+          selectedField: races
           ignoreSelectedField: true
         result:
           type: group_count
@@ -187,7 +187,7 @@ queries:
           - global_stats_bar
         filter:
           type: aggregation
-          selectedField: ethnicity
+          selectedField: ethnicities
         result:
           type: group_count
       - name: filterStudyCountByEthnicity
@@ -195,7 +195,7 @@ queries:
           - global_stats_bar
         filter:
           type: aggregation
-          selectedField: ethnicity
+          selectedField: ethnicities
           ignoreSelectedField: true
         result:
           type: group_count
@@ -204,7 +204,7 @@ queries:
           - global_stats_bar
         filter:
           type: aggregation
-          selectedField: sex
+          selectedField: sexes
         result:
           type: group_count
       - name: filterStudyCountBySex
@@ -212,24 +212,24 @@ queries:
           - global_stats_bar
         filter:
           type: aggregation
-          selectedField: sex
+          selectedField: sexes
           ignoreSelectedField: true
         result:
           type: group_count
       - name: neoplasmCountByStudy
         index:
-          - neoplasm_query
+          - study_tab
         filter:
           type: aggregation
-          selectedField: study_short_name
+          selectedField: cancer_diagnosis_primary_site_list
         result:
           type: group_count
       - name: filterNeoplasmCountByStudy
         index:
-          - neoplasm_query
+          - study_tab
         filter:
           type: aggregation
-          selectedField: study_short_name
+          selectedField: cancer_diagnosis_primary_site_list
         result:
           type: group_count
       - name: studyPeriodMin
@@ -259,7 +259,6 @@ queries:
           type: range
           selectedField: number_of_participants
           rangeFilterFields:
-            - study_participant_minimum_age
             - number_of_participants
             - study_beginning_year
             - study_ending_year
@@ -275,15 +274,15 @@ queries:
           - global_stats_bar
         filter:
           type: range
-          selectedField: participant_minimum_age
+          selectedField: study_participant_minimum_age
           rangeFilterFields:
-            - participant_minimum_age
+            - study_participant_minimum_age
             - number_of_participants
             - study_beginning_year
             - study_ending_year
             - enrollment_beginning_year
             - enrollment_ending_year
-            - participant_maximum_age
+            - study_participant_maximum_age
         result:
           type: range
       - name: participantAgeAtEnrollmentMax
@@ -291,15 +290,15 @@ queries:
           - global_stats_bar
         filter:
           type: range
-          selectedField: participant_maximum_age
+          selectedField: study_participant_maximum_age
           rangeFilterFields:
-            - participant_minimum_age
+            - study_participant_minimum_age
             - number_of_participants
             - study_beginning_year
             - study_ending_year
             - enrollment_beginning_year
             - enrollment_ending_year
-            - participant_maximum_age
+            - study_participant_maximum_age
         result:
           type: range
       - name: enrollmentPeriodMax
@@ -310,13 +309,13 @@ queries:
           ignoreSelectedField: true
           selectedField: enrollment_ending_year
           rangeFilterFields:
-            - participant_minimum_age
+            - study_participant_minimum_age
             - number_of_participants
             - study_beginning_year
             - study_ending_year
             - enrollment_beginning_year
             - enrollment_ending_year
-            - participant_maximum_age
+            - study_participant_maximum_age
         result:
           type: range
       - name: dataVolume
@@ -336,12 +335,12 @@ queries:
           ignoreSelectedField: true
           selectedField: enrollment_beginning_year
           rangeFilterFields:
-            - participant_minimum_age
+            - study_participant_minimum_age
             - number_of_participants
             - study_beginning_year
             - study_ending_year
             - enrollment_beginning_year
             - enrollment_ending_year
-            - participant_maximum_age
+            - study_participant_maximum_age
         result:
           type: range

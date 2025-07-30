@@ -248,13 +248,10 @@ type QueryType {
      study_participant_maximum_age: [Float] = []
      study_participant_median_age: [Float] = []
      study_participant_minimum_age: [Float] = []
-     race: [String] = []
-     ethnicity: [String] = []
-     sex: [String] = []
-     gender: [String] = []
      races: [String] = []
      ethnicities: [String] = []
      sexes: [String] = []
+
      study_country: [String] = []
      number_of_countries: [Int] = []
      study_state_province_territory: [String] = []
@@ -315,7 +312,7 @@ type QueryType {
       sexes: [String] = []
       study_country: [String] = []
       study_state_province_territory: [String] = []
-      primary_diagnosis_disease_term: [String] = []
+      cancer_diagnosis_primary_site_list: [String] = []
   ): [GlobalStatsBar]
   
   studyFiles(
@@ -352,16 +349,17 @@ type QueryType {
     dbgap_accession_id: [String] = []
     associated_links: [String] = []
     number_of_participants: [Int] = []
-    study_participant_maximum_age: [Int] = []
-    study_participant_median_age: [Int] = []
-    study_participant_minimum_age: [Int] = []
-    
-
+    study_participant_maximum_age: [Float] = []
+    study_participant_median_age: [Float] = []
+    study_participant_minimum_age: [Float] = []
+    races: [String] = []
+    ethnicities: [String] = []
+    sexes: [String] = []
     study_country: [String] = []
     number_of_countries: [Int] = []
     study_state_province_territory: [String] = []
     number_of_states_provinces_territories: [Int] = []
-    primary_diagnosis_disease_term: [String] = []
+    cancer_diagnosis_primary_site_list: [String] = []
   ): SearchResult
 
   dataCollectionPage(
