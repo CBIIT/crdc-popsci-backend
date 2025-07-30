@@ -328,15 +328,6 @@ queries:
         result:
           type: float
           method: sum
-      # - name: number_participants
-      #   index:
-      #     - study_tab
-      #   filter:
-      #     type: sum
-      #     selectedField: number_of_participants
-      #   result:
-      #     type: float
-      #     method: sum
       - name: enrollmentPeriodMin
         index:
           - global_stats_bar
