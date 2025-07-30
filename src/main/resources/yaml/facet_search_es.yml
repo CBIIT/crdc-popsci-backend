@@ -21,7 +21,7 @@ queries:
           method: count_bucket_keys
       - name: numberOfDataCollectionCatagory
         index:
-          - global_stats_bar
+          - study_tab
         filter:
           type: aggregation
           selectedField: data_collection_category
@@ -30,10 +30,10 @@ queries:
           method: count_bucket_keys
       - name: numberOfDiagnosis
         index:
-          - neoplasm_query
+          - study_tab
         filter:
           type: aggregation
-          selectedField: primary_diagnosis_disease_term
+          selectedField: cancer_diagnosis_primary_site_list
         result:
           type: int
           method: count_bucket_keys
@@ -99,18 +99,18 @@ queries:
           type: group_count
       - name: studyCountByNeoplasm
         index:
-          - global_stats_bar
+          - study_tab
         filter:
           type: aggregation
-          selectedField: primary_diagnosis_disease_term
+          selectedField: cancer_diagnosis_primary_site_list
         result:
           type: group_count
       - name: filterStudyCountByNeoplasm
         index:
-          - global_stats_bar
+          - study_tab
         filter:
           type: aggregation
-          selectedField: primary_diagnosis_disease_term
+          selectedField: cancer_diagnosis_primary_site_list
           ignoreSelectedField: true
         result:
           type: group_count
@@ -325,6 +325,15 @@ queries:
         filter:
           type: sum
           selectedField: data_volume
+        result:
+          type: float
+          method: sum
+      - name: number_participants
+        index:
+          - study_tab
+        filter:
+          type: sum
+          selectedField: number_of_participants
         result:
           type: float
           method: sum
