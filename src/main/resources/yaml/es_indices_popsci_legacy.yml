@@ -571,12 +571,12 @@ Indices:
       COLLECT(DISTINCT(study.study_beginning_year)) as study_beginning_year,
       COLLECT(DISTINCT(study.study_status)) as study_status,
       Collect(distinct(country.study_country)) as study_country,
-      Collect(distinct(study_demo.study_participant_maximum_age)) as study_participant_maximum_age,
-      Collect(distinct(study_demo.study_participant_median_age)) as study_participant_median_age,
-      Collect(distinct(study_demo.study_participant_minimum_age)) as study_participant_minimum_age,
+        toInteger(round(max(participant.age_at_enrollment / 365.25)))  as participant_maximum_age,
+        toInteger(round(apoc.agg.median(participant.age_at_enrollment / 365.25)))  as participant_median_age,
+        toInteger(round(avg(participant.age_at_enrollment / 365.25))) as participant_mean_age,
+        toInteger(round(min(participant.age_at_enrollment / 365.25))) as participant_minimum_age
       split(study_demo.race, '|') AS races,
       split(study_demo.ethnicity, '|') as ethnicities,
-      split(study_demo.sex, '|') as sexes,
-      split(study_demo.gender, '|') as genders
+      split(study_demo.sex, '|') as sexes
       "
   

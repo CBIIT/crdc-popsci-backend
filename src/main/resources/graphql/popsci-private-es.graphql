@@ -4,10 +4,11 @@ type SearchResult {
   numberOfDiagnosis: Int
   numberOfDataFiles: Int
   dataVolume: Float
+
   studyPeriodMin: RangeCount
   studyPeriodMax: RangeCount
-  enrollmentPeriodMin: RangeCount
   enrollmentPeriodMax: RangeCount
+  enrollmentPeriodMin: RangeCount
   participantAgeAtEnrollmentMin: RangeCount
   participantAgeAtEnrollmentMax: RangeCount
   studyCountByNumberOfParticipants: RangeCount
@@ -33,8 +34,6 @@ type SearchResult {
   filterStudyCountByEthnicity: [TypeCount]
   studyCountBySex: [TypeCount]
   filterStudyCountBySex: [TypeCount]
-  studyCountByGender: [TypeCount]
-  filterStudyCountByGender: [TypeCount]
 }
 type TypeCount {
     group: String
@@ -52,6 +51,10 @@ type GlobalStatsBar {
   cancer_diagnosis_primary_site_count: Int
   study_design: String
   study_type: String
+  participant_races: [GroupCounts]
+  participant_ethnicities: [GroupCounts]
+  participant_sexes: [GroupCounts]
+  
 }
 type data_collection_page {
   study_short_name: String
@@ -193,8 +196,8 @@ type StudyDemographics {
     study_description: String
     study_type: String
     study_design: String
-    enrollment_beginning_year: String
-    enrollment_ending_year: String
+    enrollment_beginning_year: Int
+    enrollment_ending_year: Int
     enrollment_period: String
     study_beginning_year: String
     study_ending_year: String
@@ -254,13 +257,10 @@ type QueryType {
      study_participant_maximum_age: [Float] = []
      study_participant_median_age: [Float] = []
      study_participant_minimum_age: [Float] = []
-     race: [String] = []
-     ethnicity: [String] = []
-     sex: [String] = []
-     gender: [String] = []
      races: [String] = []
      ethnicities: [String] = []
      sexes: [String] = []
+
      study_country: [String] = []
      number_of_countries: [Int] = []
      study_state_province_territory: [String] = []
@@ -321,8 +321,9 @@ type QueryType {
       sexes: [String] = []
       study_country: [String] = []
       study_state_province_territory: [String] = []
-      primary_diagnosis_disease_term: [String] = []
+      cancer_diagnosis_primary_site_list: [String] = []
   ): [GlobalStatsBar]
+  
   studyFiles(
      study_short_name: [String] = []
     data_file_uuid: [String] = []
@@ -363,12 +364,11 @@ type QueryType {
     races: [String] = []
     ethnicities: [String] = []
     sexes: [String] = []
-
     study_country: [String] = []
     number_of_countries: [Int] = []
     study_state_province_territory: [String] = []
     number_of_states_provinces_territories: [Int] = []
-    primary_diagnosis_disease_term: [String] = []
+    cancer_diagnosis_primary_site_list: [String] = []
   ): SearchResult
 
   dataCollectionPage(
