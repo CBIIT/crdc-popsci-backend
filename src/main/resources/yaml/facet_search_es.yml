@@ -170,7 +170,7 @@ queries:
           - global_stats_bar
         filter:
           type: aggregation
-          selectedField: races
+          selectedField: race
         result:
           type: group_count
       - name: filterStudyCountByRace
@@ -178,7 +178,7 @@ queries:
           - global_stats_bar
         filter:
           type: aggregation
-          selectedField: races
+          selectedField: race
           ignoreSelectedField: true
         result:
           type: group_count
@@ -204,7 +204,7 @@ queries:
           - global_stats_bar
         filter:
           type: aggregation
-          selectedField: sexes
+          selectedField: sex
         result:
           type: group_count
       - name: filterStudyCountBySex
@@ -212,7 +212,7 @@ queries:
           - global_stats_bar
         filter:
           type: aggregation
-          selectedField: sexes
+          selectedField: sex
           ignoreSelectedField: true
         result:
           type: group_count

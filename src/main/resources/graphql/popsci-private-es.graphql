@@ -151,13 +151,9 @@ type TabStudy {
   study_participant_maximum_age: Float
   study_participant_median_age: Float
   study_participant_minimum_age: Float
-  race: String
-  ethnicity: String
-  sex: String
-  gender: String
-  ethnicities: String
-  races: String
-  sexes: String
+  ethnicities: [String]
+  race: [String]
+  sex: [String]
   study_country: [String]
   number_of_countries: Int
   data_volume: Int
@@ -171,8 +167,8 @@ type TabStudy {
   data_file: [data_file]
   associated_links: [associated_links]
   enrollment_period: String
+  participant_age_range: String
   study_period: String
-  enrollment_age: String
   data_collection:[data_collection]
 }
 type DiagnosisCodes {
@@ -228,7 +224,7 @@ type QueryType {
     data_file_uuid: [String]
     order_by: String = ""
     sort_direction: String = "ASC"
-    first: Int = 10
+    first: Int = 100
     offset: Int = 0
  ): [StudyFiles]
 
@@ -257,9 +253,9 @@ type QueryType {
      study_participant_maximum_age: [Float] = []
      study_participant_median_age: [Float] = []
      study_participant_minimum_age: [Float] = []
-     races: [String] = []
+     race: [String] = []
      ethnicities: [String] = []
-     sexes: [String] = []
+     sex: [String] = []
 
      study_country: [String] = []
      number_of_countries: [Int] = []
@@ -286,9 +282,9 @@ type QueryType {
   studyDemographics(
       study_short_name: [String] = []
       number_of_participants: [Int] = []
-      races: [String] = []
+      race: [String] = []
       ethnicities: [String] = []
-      sexes: [String] = []
+      sex: [String] = []
       study_participant_maximum_age: [Float] = []
       study_participant_median_age: [Float] = []
       study_participant_minimum_age: [Float] = []
@@ -316,9 +312,9 @@ type QueryType {
       study_participant_maximum_age: [Float] = []
       study_participant_median_age: [Float] = []
       study_participant_minimum_age: [Float] = []
-      races: [String] = []
+      race: [String] = []
       ethnicities: [String] = []
-      sexes: [String] = []
+      sex: [String] = []
       study_country: [String] = []
       study_state_province_territory: [String] = []
       cancer_diagnosis_primary_site_list: [String] = []
@@ -361,9 +357,9 @@ type QueryType {
     study_participant_maximum_age: [Float] = []
     study_participant_median_age: [Float] = []
     study_participant_minimum_age: [Float] = []
-    races: [String] = []
+    race: [String] = []
     ethnicities: [String] = []
-    sexes: [String] = []
+    sex: [String] = []
     study_country: [String] = []
     number_of_countries: [Int] = []
     study_state_province_territory: [String] = []
