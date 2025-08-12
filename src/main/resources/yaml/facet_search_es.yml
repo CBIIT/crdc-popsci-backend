@@ -187,7 +187,7 @@ queries:
           - global_stats_bar
         filter:
           type: aggregation
-          selectedField: ethnicities
+          selectedField: ethnicity
         result:
           type: group_count
       - name: filterStudyCountByEthnicity
@@ -195,7 +195,7 @@ queries:
           - global_stats_bar
         filter:
           type: aggregation
-          selectedField: ethnicities
+          selectedField: ethnicity
           ignoreSelectedField: true
         result:
           type: group_count

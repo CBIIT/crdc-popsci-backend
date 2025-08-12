@@ -151,7 +151,7 @@ type TabStudy {
   study_participant_maximum_age: Float
   study_participant_median_age: Float
   study_participant_minimum_age: Float
-  ethnicities: [String]
+  ethnicity: [String]
   race: [String]
   sex: [String]
   study_country: [String]
@@ -183,7 +183,7 @@ type GroupCounts {
 type PrimarySiteMorphology {
   study_short_name: String
   cancer_diagnosis_disease_morphology_collection: [DiagnosisCodes]
-  cancer_diagnosis_primary_site_collection: [DiagnosisCodes]
+  cancer_diagnosis_primary_site_collection: [TypeCount]
   data_collection_category_count: Int
 }
 type StudyDemographics {
@@ -254,7 +254,7 @@ type QueryType {
      study_participant_median_age: [Float] = []
      study_participant_minimum_age: [Float] = []
      race: [String] = []
-     ethnicities: [String] = []
+     ethnicity: [String] = []
      sex: [String] = []
 
      study_country: [String] = []
@@ -283,7 +283,7 @@ type QueryType {
       study_short_name: [String] = []
       number_of_participants: [Int] = []
       race: [String] = []
-      ethnicities: [String] = []
+      ethnicity: [String] = []
       sex: [String] = []
       study_participant_maximum_age: [Float] = []
       study_participant_median_age: [Float] = []
@@ -313,7 +313,7 @@ type QueryType {
       study_participant_median_age: [Float] = []
       study_participant_minimum_age: [Float] = []
       race: [String] = []
-      ethnicities: [String] = []
+      ethnicity: [String] = []
       sex: [String] = []
       study_country: [String] = []
       study_state_province_territory: [String] = []
@@ -358,7 +358,7 @@ type QueryType {
     study_participant_median_age: [Float] = []
     study_participant_minimum_age: [Float] = []
     race: [String] = []
-    ethnicities: [String] = []
+    ethnicity: [String] = []
     sex: [String] = []
     study_country: [String] = []
     number_of_countries: [Int] = []
