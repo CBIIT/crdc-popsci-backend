@@ -63,7 +63,6 @@ type data_collection_page {
 type data_collection {
   data_collection_category: String
   data_collection_category_annotation_count: Int
-
 }
 type personnel {
   person_role : String
@@ -151,13 +150,9 @@ type TabStudy {
   study_participant_maximum_age: Float
   study_participant_median_age: Float
   study_participant_minimum_age: Float
-  race: String
-  ethnicity: String
-  sex: String
-  gender: String
-  ethnicities: String
-  races: String
-  sexes: String
+  ethnicity: [String]
+  race: [String]
+  sex: [String]
   study_country: [String]
   number_of_countries: Int
   data_volume: Int
@@ -166,13 +161,14 @@ type TabStudy {
   data_file_total_size: Int
   primary_diagnosis_disease_term: [String]
   primary_diagnosis_disease_count: Int
+  cancer_diagnosis_primary_site_list: [String]
   personnel: [personnel]
   publication: [publication]
   data_file: [data_file]
   associated_links: [associated_links]
   enrollment_period: String
+  participant_age_range: String
   study_period: String
-  enrollment_age: String
   data_collection:[data_collection]
 }
 type DiagnosisCodes {
@@ -187,7 +183,7 @@ type GroupCounts {
 type PrimarySiteMorphology {
   study_short_name: String
   cancer_diagnosis_disease_morphology_collection: [DiagnosisCodes]
-  cancer_diagnosis_primary_site_collection: [DiagnosisCodes]
+  cancer_diagnosis_primary_site_collection: [TypeCount]
   data_collection_category_count: Int
 }
 type StudyDemographics {
@@ -228,7 +224,7 @@ type QueryType {
     data_file_uuid: [String]
     order_by: String = ""
     sort_direction: String = "ASC"
-    first: Int = 10
+    first: Int = 100
     offset: Int = 0
  ): [StudyFiles]
 
@@ -257,10 +253,10 @@ type QueryType {
      study_participant_maximum_age: [Float] = []
      study_participant_median_age: [Float] = []
      study_participant_minimum_age: [Float] = []
-     races: [String] = []
-     ethnicities: [String] = []
-     sexes: [String] = []
-
+     race: [String] = []
+     ethnicity: [String] = []
+     sex: [String] = []
+     cancer_diagnosis_primary_site_list: [String] = []
      study_country: [String] = []
      number_of_countries: [Int] = []
      study_state_province_territory: [String] = []
@@ -286,9 +282,9 @@ type QueryType {
   studyDemographics(
       study_short_name: [String] = []
       number_of_participants: [Int] = []
-      races: [String] = []
-      ethnicities: [String] = []
-      sexes: [String] = []
+      race: [String] = []
+      ethnicity: [String] = []
+      sex: [String] = []
       study_participant_maximum_age: [Float] = []
       study_participant_median_age: [Float] = []
       study_participant_minimum_age: [Float] = []
@@ -316,9 +312,9 @@ type QueryType {
       study_participant_maximum_age: [Float] = []
       study_participant_median_age: [Float] = []
       study_participant_minimum_age: [Float] = []
-      races: [String] = []
-      ethnicities: [String] = []
-      sexes: [String] = []
+      race: [String] = []
+      ethnicity: [String] = []
+      sex: [String] = []
       study_country: [String] = []
       study_state_province_territory: [String] = []
       cancer_diagnosis_primary_site_list: [String] = []
@@ -361,9 +357,9 @@ type QueryType {
     study_participant_maximum_age: [Float] = []
     study_participant_median_age: [Float] = []
     study_participant_minimum_age: [Float] = []
-    races: [String] = []
-    ethnicities: [String] = []
-    sexes: [String] = []
+    race: [String] = []
+    ethnicity: [String] = []
+    sex: [String] = []
     study_country: [String] = []
     number_of_countries: [Int] = []
     study_state_province_territory: [String] = []
