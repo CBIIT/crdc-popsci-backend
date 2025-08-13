@@ -63,7 +63,6 @@ type data_collection_page {
 type data_collection {
   data_collection_category: String
   data_collection_category_annotation_count: Int
-
 }
 type personnel {
   person_role : String
@@ -162,6 +161,7 @@ type TabStudy {
   data_file_total_size: Int
   primary_diagnosis_disease_term: [String]
   primary_diagnosis_disease_count: Int
+  cancer_diagnosis_primary_site_list: [String]
   personnel: [personnel]
   publication: [publication]
   data_file: [data_file]
@@ -256,7 +256,7 @@ type QueryType {
      race: [String] = []
      ethnicity: [String] = []
      sex: [String] = []
-
+     cancer_diagnosis_primary_site_list: [String] = []
      study_country: [String] = []
      number_of_countries: [Int] = []
      study_state_province_territory: [String] = []
