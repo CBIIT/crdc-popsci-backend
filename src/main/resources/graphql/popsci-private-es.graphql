@@ -51,9 +51,7 @@ type GlobalStatsBar {
   cancer_diagnosis_primary_site_count: Int
   study_design: String
   study_type: String
-  participant_races: [GroupCounts]
-  participant_ethnicities: [GroupCounts]
-  participant_sexes: [GroupCounts]
+
   
 }
 type data_collection_page {
