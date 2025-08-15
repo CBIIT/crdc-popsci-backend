@@ -435,6 +435,8 @@ Indices:
         type: keyword
       study_beginning_year:
         type: keyword
+      data_file_signed_url:
+        type: keyword
       study_status:
         type: keyword
       study_country:
@@ -518,11 +520,12 @@ Indices:
       data.data_file_size as data_volume,
       data.data_file_name as data_file_name,
       data.data_file_type as data_file_type,
+      data.data_file_signed_url as data_file_signed_url,
       data.data_file_access_control as data_file_access_control,
       data.data_file_description as data_file_description,
       data.data_file_format as data_file_format,
       data.data_file_compression_status as data_file_compression_status,
-      'drs://nci-crdc.datacommons.io/' + data.data_file_uuid AS drs_uri,
+      'drs://nci-crdc.datacommons.io/dg.4DFC/' + data.data_file_uuid AS drs_uri,
       study.number_of_participants as number_of_participants,
       COLLECT(DISTINCT(data_collection.data_collection_category)) as data_collection_category,
       study.enrollment_beginning_year as enrollment_beginning_year,
