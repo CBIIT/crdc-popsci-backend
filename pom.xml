@@ -27,6 +27,8 @@
         <snakeyaml.version>2.3</snakeyaml.version>
         <kotlin.version>2.1.0</kotlin.version>
         <spring.restdocs.version>3.0.3</spring.restdocs.version>
+    <!-- Centralize protobuf version so it can be updated easily -->
+    <protobuf.version>4.28.2</protobuf.version>
     </properties>
 
     <dependencyManagement>
@@ -377,7 +379,7 @@
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
-            <version>3.22.3</version>
+            <version>${protobuf.version}</version>
         </dependency>
     </dependencies>
 
