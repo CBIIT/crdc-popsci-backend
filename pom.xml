@@ -286,6 +286,11 @@
                     <groupId>commons-logging</groupId>
                     <artifactId>commons-logging</artifactId>
                 </exclusion>
+                <!-- Exclude protobuf so we can control version explicitly if needed -->
+                <exclusion>
+                    <groupId>com.google.protobuf</groupId>
+                    <artifactId>protobuf-java</artifactId>
+                </exclusion>
 			</exclusions>
         </dependency>
 		<dependency>
@@ -328,6 +333,11 @@
                     <groupId>org.apache.logging.log4j</groupId>
                     <artifactId>log4j-api</artifactId>
                 </exclusion>
+                <!-- Exclude protobuf so we can manage / upgrade it directly -->
+                <exclusion>
+                    <groupId>com.google.protobuf</groupId>
+                    <artifactId>protobuf-java</artifactId>
+                </exclusion>
             </exclusions>
 		</dependency>
         <!-- AWS Java SDK -->
@@ -362,6 +372,12 @@
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20231013</version>
+        </dependency>
+        <!-- Explicitly manage protobuf version (excluded from OpenSearch deps) -->
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>3.22.3</version>
         </dependency>
     </dependencies>
 
