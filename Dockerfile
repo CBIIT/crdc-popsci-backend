@@ -23,12 +23,16 @@ RUN mvn package -DskipTests
 # RUN rm -rf /usr/local/tomcat/webapps.dist
 # RUN rm -rf /usr/local/tomcat/webapps/ROOT
 
-FROM tomcat:10.1.44-jdk17 AS fnl_base_image
+# FROM tomcat:10.1.44-jdk17 AS fnl_base_image
+FROM tomcat:11.0.9-jdk17-temurin-noble AS final
 
-RUN apt-get update && apt-get -y upgrade
+# Update and install required packages, then clean up
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y unzip && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# install dependencies and clean up unused files
-RUN apt-get update && apt-get install unzip
 RUN rm -rf /usr/local/tomcat/webapps.dist
 RUN rm -rf /usr/local/tomcat/webapps/ROOT
 
