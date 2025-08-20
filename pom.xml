@@ -192,10 +192,12 @@
             <version>3.3.0</version>
         </dependency>
         <!-- Apache Tomcat -->
+        <!-- Apache Tomcat (explicitly pin to 11.0.10 as required) -->
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
             <artifactId>tomcat-embed-core</artifactId>
             <version>11.0.10</version>
+            <scope>provided</scope>
         </dependency>
         <!-- JUnit -->
         <dependency>
