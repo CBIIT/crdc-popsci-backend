@@ -21,7 +21,7 @@ queries:
           method: count_bucket_keys
       - name: numberOfDataCollectionCatagory
         index:
-          - study_tab
+          - global_stats_bar
         filter:
           type: aggregation
           selectedField: data_collection_category
