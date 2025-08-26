@@ -308,9 +308,7 @@ Indices:
         type: nested
         properties:
           group:
-            type: keyword
-          subjects:
-            type: keyword
+            type: integer
 
    # Cypher query will be used to retrieve data from Neo4j, and index into Elasticsearch
     cypher_query:
