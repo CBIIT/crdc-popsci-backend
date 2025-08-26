@@ -238,8 +238,9 @@ Indices:
          MATCH (study:study)<-[:associated_with]-(participant:participant)
         with count(participant) as cancer_diagnosis_disease_morphology_count,participant.cancer_diagnosis_disease_morphology as cancer_diagnosis_disease_morphology,participant.`ICD-O-3 Code_disease_morphology` as code_morphology,study
         MATCH (study)<-[:associated_with]-(participant:participant)
-        with count(participant) as cancer_diagnosis_primary_site_count,participant.cancer_diagnosis_primary_site as cancer_diagnosis_primary_site,cancer_diagnosis_disease_morphology,cancer_diagnosis_disease_morphology_count,study,code_morphology,participant.`ICD-O-3 Code_primary_site` as code_primary_site
+        with count(participant) as cancer_diagnosis_primary_site_count,participant.cancer_diagnosis_primary_site as cancer_diagnosis_primary_site,cancer_diagnosis_disease_morphology,cancer_diagnosis_disease_morphology_count,study,code_morphology
         OPTIONAL MATCH (study)<-[:associated_with]-(data_collection:data_collection)
+
         RETURN 
             study.study_short_name as study_short_name,
             study.study_id as study_id,
@@ -283,6 +284,8 @@ Indices:
         type: integer
       study_ending_year:
         type: integer
+      cancer_type_count:
+        type: integer
       study_participant_maximum_age:
         type: integer
       study_participant_median_age:
@@ -301,6 +304,8 @@ Indices:
         type: keyword
       number_of_participants:
         type: integer
+      data_collection_category:
+        type: keyword
       study_country:
         type: keyword
       study_state_province_territory:
@@ -313,7 +318,14 @@ Indices:
         type: keyword
       ethnicity:
         type: keyword
-      
+      study_cancer_diagnosis_primary_site_count:
+        type: nested
+        properties:
+          group:
+            type: keyword
+          subjects:
+            type: keyword
+
    # Cypher query will be used to retrieve data from Neo4j, and index into Elasticsearch
     cypher_query:
           " 
@@ -354,6 +366,8 @@ Indices:
           optional MATCH (study)<-[:associated_with]-(country:study_country) 
           optional MATCH (study)<-[:associated_with]-(state:study_state_province_territory)
             optional MATCH (study)<-[:associated_with]-(neoplasm:primary_diagnosis)
+             OPTIONAL MATCH (study)<-[:associated_with]-(data_collection:data_collection)
+              WHERE toInteger(data_collection.data_collection_category_annotation_count) <> 0 and data_collection.data_collection_category_annotation_count is not null
            SET study.study_ending_year = replace(toString(study.study_ending_year), ' ', '')
             SET study.study_ending_year = CASE
             WHEN toLower(trim(toString(study.study_ending_year))) CONTAINS 'ongoing' THEN REPLACE(toLower(trim(toString(study.study_ending_year))),study.study_ending_year, '3000')
@@ -364,6 +378,7 @@ Indices:
             study.study_name as study_name,
                 study.study_short_name as study_short_name,
                 study.study_id as study_id,
+                study.cancer_diagnosis_primary_site_count as cancer_type_count,
                 count(distinct(study.study_short_name)) as study_count,
                 study.study_description as study_description,
                 study.study_type as study_type,
@@ -379,7 +394,7 @@ Indices:
                 study.participant_mean_age as study_participant_mean_age,
                 study.participant_median_age as study_participant_median_age,
                 study.participant_minimum_age as study_participant_minimum_age,
-                
+                COLLECT(DISTINCT(data_collection.data_collection_category)) as data_collection_category,
                 toInteger(study.number_of_participants) as number_of_participants,
                 toInteger(study.study_beginning_year) + ' - ' + COALESCE(toInteger(study.study_ending_year),'On Going') as study_period,
                 study.biospecimen_collection as biospecimen_collection,
@@ -389,7 +404,11 @@ Indices:
                 Collect(distinct(state.study_state_province_territory)) as  study_state_province_territory,
                 ethnicity_group as ethnicity,
                 race_group as race,
-                sex_group as sex
+                sex_group as sex,
+                collect(DISTINCT{
+                group: study.study_short_name, 
+                subjects: study.cancer_diagnosis_primary_site_count
+          }) as study_cancer_diagnosis_primary_site_count
      "
   - index_name: data_volume_query
     type: neo4j
@@ -499,7 +518,7 @@ Indices:
           COLLECT(DISTINCT ethnicity_group) as ethnicity_group
       OPTIONAL MATCH (study)<-[:associated_with]-(data:data_file)
       OPTIONAL MATCH (study)<-[:associated_with]-(data_collection:data_collection)
-      WHERE data_collection.data_collection_category_annotation_count <> 0 and data_collection.data_collection_category_annotation_count is not null
+      WHERE toInteger(data_collection.data_collection_category_annotation_count) <> 0 and data_collection.data_collection_category_annotation_count is not null
       optional MATCH (study)<-[:associated_with]-(study_demo:study_demographic)
       optional MATCH (study)<-[:associated_with]-(country:study_country)
       optional MATCH (study)<-[:associated_with]-(state:study_state_province_territory)

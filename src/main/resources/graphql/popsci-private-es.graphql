@@ -48,9 +48,11 @@ type GlobalStatsBar {
   study_short_name: String
   data_volume: Float
   number_of_participants: Int
+  cancer_type_count:Int
   cancer_diagnosis_primary_site_count: Int
   study_design: String
   study_type: String
+  study_cancer_diagnosis_primary_site_count_collection: [TypeCount]
 
   
 }
@@ -301,6 +303,7 @@ type QueryType {
       data_volume: [Float] = []
       data_file_uuid: [String] = []
       study_id: [String] = []
+      data_collection_category: [String] = []
       enrollment_beginning_year: [Int] = []
       enrollment_ending_year: [Int] = []
       study_beginning_year: [Int] = []
