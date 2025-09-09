@@ -49,6 +49,7 @@ Indices:
   #   and summary metadata (enrollment/study years, participant age stats). Used for demographics panels.
   - index_name: study_demographics
     type: neo4j
+    # type mapping for each property of the index
     mapping:
       study_name:
         type: keyword
@@ -422,6 +423,7 @@ Indices:
      "
   - index_name: data_volume_query
     type: neo4j
+    # type mapping for each property of the index
     mapping:
       study_short_name:
         type: keyword
@@ -593,13 +595,13 @@ Indices:
       study_design:
         type: keyword
       study_participant_maximum_age:
-        type: keyword
+        type: integer
       study_participant_mean_age:
-        type: keyword
+        type: integer
       study_participant_median_age:
-        type: keyword
+        type: integer
       study_participant_minimum_age:
-        type: keyword
+        type: integer
       number_of_participants:
         type: integer
       cancer_diagnosis_primary_site_list:
