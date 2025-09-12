@@ -146,7 +146,7 @@ type TabStudy {
   biospecimen_collection: String
   data_collection_category: [String]
   study_status: String
-  dbgap_accession_id: String
+  dbgap_accession_id: [String]
   number_of_participants : Int
   study_participant_maximum_age: Float
   study_participant_median_age: Float
@@ -201,7 +201,7 @@ type StudyDemographics {
     study_period: String
     biospecimen_collection: String
     study_status: String
-    dbgap_accession_id: String
+    dbgap_accession_id: [String]
     number_of_participants: Int
     participant_age_range: String
     participant_maximum_age: Int
