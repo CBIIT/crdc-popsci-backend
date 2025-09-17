@@ -1,7 +1,8 @@
 queries:
   - name: studyGeneral
     index:
-      - study_overview_legacy
+      - study_overview
+
     filter:
       type: default
       rangeFilterFields:
@@ -33,7 +34,8 @@ queries:
       type: object_array
   - name: dataCollectionPage
     index:
-      - data_collection_legacy
+      - data_collection
+
     filter:
       rangeFilterFields:
             - number_of_participants
