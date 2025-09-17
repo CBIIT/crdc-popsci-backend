@@ -1,4 +1,3 @@
-# ...existing code...
 Indices:
   # min_max_bound_query
   # Purpose:
@@ -27,11 +26,16 @@ Indices:
       participant_maximum_age_upper_bound:
         type: integer
     cypher_query: "
-      MATCH (study:study)<-[:associated_with]-(participant:participant)
+       MATCH (study:study)<-[:associated_with]-(participant:participant)
       WITH toInteger(round(max(participant.age_at_enrollment / 365.25))) AS study_max_age, toInteger(round(min(participant.age_at_enrollment / 365.25))) AS study_min_age
       WITH collect(study_max_age) AS max_ages_per_study, collect(study_min_age) AS min_ages_per_study
       MATCH (study:study)
       MATCH (participant:participant)
+      SET study.study_ending_year = replace(toString(study.study_ending_year), ' ', '')
+            SET study.study_ending_year = CASE
+            WHEN toLower(trim(toString(study.study_ending_year))) CONTAINS 'ongoing' THEN REPLACE(toLower(trim(toString(study.study_ending_year))),study.study_ending_year, '3000')
+            ELSE study.study_ending_year
+            END
       RETURN
         study.study_short_name as study_short_name,
         max(study.number_of_participants) as number_of_participant_upper_bound,
@@ -40,8 +44,8 @@ Indices:
         max(study.enrollment_ending_year) as enrollment_ending_year_upper_bound,
         min(study.study_beginning_year) as study_beginning_year_lower_bound,
         max(study.study_ending_year) as study_ending_year_upper_bound,
-        toInteger(round(min(participant.age_at_enrollment / 365.25))) as participant_minimum_age,
-        apoc.coll.max(max_ages_per_study) AS participant_maximum_age_upper_bound"
+        study.participant_minimum_age as participant_minimum_age,
+        study.participant_maximum_age as participant_maximum_age_upper_bound"
   # study_demographics
   # Purpose:
   #   Supplies demographic tab data for the study detail tab
@@ -52,8 +56,6 @@ Indices:
     # type mapping for each property of the index
     mapping:
       study_name:
-        type: keyword
-      study_id:
         type: keyword
       study_short_name:
         type: keyword
@@ -126,7 +128,7 @@ Indices:
     cypher_query: "
                 
     
-        MATCH (study:study)<-[:associated_with]-(participant:participant)
+             MATCH (study:study)<-[:associated_with]-(participant:participant)
 
         UNWIND participant.race AS race_raw
         UNWIND split(toLower(race_raw), '|') AS race_group
@@ -190,7 +192,6 @@ Indices:
           participant_ethnicities,
         study.study_name as study_name,
               study.study_short_name as study_short_name,
-              study.study_id as study_id,
               study.study_description as study_description,
               study.study_type as study_type,
               study.study_design as study_design,
@@ -202,7 +203,14 @@ Indices:
               toInteger(study.study_beginning_year) + ' - ' + COALESCE(study.study_ending_year,'On Going') as study_period,
               study.biospecimen_collection as biospecimen_collection,
               study.study_status as study_status,
-              study.dbgap_accession_id as dbgap_accession_id,
+              COLLECT(DISTINCT
+              CASE
+                WHEN study.study_short_name = 'PBCS' THEN 'Not available'
+                WHEN study.dbgap_accession_id IS NULL THEN 'N/A'
+                ELSE study.dbgap_accession_id
+              END
+            ) as dbgap_accession_id,
+
               toInteger(study.number_of_participants) as number_of_participants,
 
 
@@ -212,16 +220,12 @@ Indices:
               study.participant_minimum_age as participant_minimum_age,
               study.participant_minimum_age  + ' - '   + study.participant_maximum_age as participant_age_range
 
-      
-
       "
 
   - index_name: study_cancer_counts
     type: neo4j
     # type mapping for each property of the index
     mapping:
-      study_id:
-        type: keyword
       study_short_name:
         type: keyword
       cancer_diagnosis_disease_morphology_collection:
@@ -240,31 +244,35 @@ Indices:
             type: keyword
           subjects:
             type: keyword
-      data_collection_category_count:
-        type: integer
 
     # Cypher query will be used to retrieve data from Neo4j, and index into Elasticsearch
     cypher_query:
        " 
-         MATCH (study:study)<-[:associated_with]-(participant:participant)
-        with count(participant) as cancer_diagnosis_disease_morphology_count,participant.cancer_diagnosis_disease_morphology as cancer_diagnosis_disease_morphology,participant.`ICD-O-3 Code_disease_morphology` as code_morphology,study
+        MATCH (study:study)<-[:associated_with]-(participant:participant)
+        WITH count(participant) as cancer_diagnosis_disease_morphology_count,
+        participant.cancer_diagnosis_disease_morphology as cancer_diagnosis_disease_morphology,
+        participant.`ICD-O-3 Code_disease_morphology` as code_morphology,
+        study
         MATCH (study)<-[:associated_with]-(participant:participant)
-        with count(participant) as cancer_diagnosis_primary_site_count,participant.cancer_diagnosis_primary_site as cancer_diagnosis_primary_site,cancer_diagnosis_disease_morphology,cancer_diagnosis_disease_morphology_count,study,code_morphology
+        WITH count(participant) as cancer_diagnosis_primary_site_count,
+         participant.cancer_diagnosis_primary_site as cancer_diagnosis_primary_site,
+        cancer_diagnosis_disease_morphology,
+        cancer_diagnosis_disease_morphology_count,
+        study,
+        code_morphology
         OPTIONAL MATCH (study)<-[:associated_with]-(data_collection:data_collection)
-
         RETURN 
-            study.study_short_name as study_short_name,
-            study.study_id as study_id,
-
-          Collect(Distinct{
-            group:cancer_diagnosis_disease_morphology,
-            group_code:code_morphology,
-            subjects:cancer_diagnosis_disease_morphology_count }) as cancer_diagnosis_disease_morphology_collection,
-          Collect(Distinct{
-          group:cancer_diagnosis_primary_site,
-          subjects:cancer_diagnosis_primary_site_count }) as cancer_diagnosis_primary_site_collection,
-          count(distinct(data_collection.data_collection_category)) as data_collection_category_count
-     "
+        study.study_short_name as study_short_name,
+        Collect(Distinct{
+          group: cancer_diagnosis_disease_morphology,
+          group_code: code_morphology,
+          subjects: cancer_diagnosis_disease_morphology_count
+        }) as cancer_diagnosis_disease_morphology_collection,
+        Collect(Distinct{
+          group: cancer_diagnosis_primary_site,
+          subjects: cancer_diagnosis_primary_site_count
+        }) as cancer_diagnosis_primary_site_collection  
+        "
   - index_name: global_stats_bar
     type: neo4j
     # type mapping for each property of the index
@@ -274,8 +282,6 @@ Indices:
       study_short_name:
         type: keyword
       primary_diagnosis_disease_term:
-        type: keyword
-      study_id:
         type: keyword
       study_count:
         type: integer
@@ -338,6 +344,7 @@ Indices:
             type: keyword
 
    # Cypher query will be used to retrieve data from Neo4j, and index into Elasticsearch
+   # TODO FIX THE DBGAP TO ACCEPT NULL VALUES WITHOUT REPEATING IN A LIST AND CRASHING
     cypher_query:
           " 
          MATCH (study:study)<-[:associated_with]-(participant:participant)
@@ -365,7 +372,7 @@ Indices:
           MATCH (study)<-[:associated_with]-(participant:participant)
           UNWIND participant.ethnicity AS ethnicity_raw
           UNWIND split(toLower(ethnicity_raw), '|') AS ethnicity_group
-          WITH  trim(ethnicity_group) as ethnicity_group, collect(DISTINCT study.study_id) AS study_count, race_group,
+          WITH  trim(ethnicity_group) as ethnicity_group, collect(DISTINCT study.study_short_name) AS study_count, race_group,
           sex_group,study
           
           
@@ -388,7 +395,6 @@ Indices:
           
             study.study_name as study_name,
                 study.study_short_name as study_short_name,
-                study.study_id as study_id,
                 study.cancer_diagnosis_primary_site_count as cancer_type_count,
                 count(distinct(study.study_short_name)) as study_count,
                 study.study_description as study_description,
@@ -410,7 +416,13 @@ Indices:
                 toInteger(study.study_beginning_year) + ' - ' + COALESCE(toInteger(study.study_ending_year),'On Going') as study_period,
                 study.biospecimen_collection as biospecimen_collection,
                 study.study_status as study_status,
-                study.dbgap_accession_id as dbgap_accession_id,
+                COLLECT(DISTINCT
+              CASE
+                WHEN study.study_short_name = 'PBCS' THEN 'Not available'
+                WHEN study.dbgap_accession_id IS NULL THEN 'N/A'
+                ELSE study.dbgap_accession_id
+              END
+            ) as dbgap_accession_id,
                 Collect(distinct(country.study_country)) as study_country,
                 Collect(distinct(state.study_state_province_territory)) as  study_state_province_territory,
                 ethnicity_group as ethnicity,
@@ -519,7 +531,7 @@ Indices:
           MATCH (study)<-[:associated_with]-(participant:participant)
           UNWIND participant.ethnicity AS ethnicity_raw
           UNWIND split(toLower(ethnicity_raw), '|') AS ethnicity_group
-          WITH  trim(ethnicity_group) as ethnicity_group, collect(DISTINCT study.study_id) AS study_count, race_group,
+          WITH  trim(ethnicity_group) as ethnicity_group, collect(DISTINCT study.study_short_name) AS study_count, race_group,
           sex_group,study
           
           
@@ -531,7 +543,6 @@ Indices:
       OPTIONAL MATCH (study)<-[:associated_with]-(data:data_file)
       OPTIONAL MATCH (study)<-[:associated_with]-(data_collection:data_collection)
       WHERE toInteger(data_collection.data_collection_category_annotation_count) <> 0 and data_collection.data_collection_category_annotation_count is not null
-      optional MATCH (study)<-[:associated_with]-(study_demo:study_demographic)
       optional MATCH (study)<-[:associated_with]-(country:study_country)
       optional MATCH (study)<-[:associated_with]-(state:study_state_province_territory)
 
@@ -556,7 +567,7 @@ Indices:
       data.data_file_description as data_file_description,
       data.data_file_format as data_file_format,
       data.data_file_compression_status as data_file_compression_status,
-      'drs://nci-crdc.datacommons.io/dg.4DFC/' + data.data_file_uuid AS drs_uri,
+      'drs://nci-crdc-staging.datacommons.io/dg.4DFC/' + data.data_file_uuid AS drs_uri,
       toInteger(study.number_of_participants) as number_of_participants,
       COLLECT(DISTINCT(data_collection.data_collection_category)) as data_collection_category,
       study.enrollment_beginning_year as enrollment_beginning_year,
@@ -585,8 +596,6 @@ Indices:
       study_name:
         type: keyword
       study_short_name:
-        type: keyword
-      study_id:
         type: keyword
       study_description:
         type: keyword
@@ -726,7 +735,6 @@ Indices:
           RETURN 
             study.study_name as study_name,
             study.study_short_name as study_short_name,
-            study.study_id as study_id,
             study.study_description as study_description,
             study.study_type as study_type,
             study.study_design as study_design,
@@ -751,7 +759,13 @@ Indices:
             toInteger(study.study_ending_year) as study_ending_year,
             study.biospecimen_collection as biospecimen_collection,
             study.study_status as study_status,
-            study.dbgap_accession_id as dbgap_accession_id,
+            COLLECT(DISTINCT
+              CASE
+                WHEN study.study_short_name = 'PBCS' THEN 'Not available'
+                WHEN study.dbgap_accession_id IS NULL THEN 'N/A'
+                ELSE study.dbgap_accession_id
+              END
+            ) as dbgap_accession_id,
             Collect(distinct(country.study_country)) as study_country,
             count(Distinct(country.study_country)) as number_of_countries,
             Collect(distinct(state.study_state_province_territory)) as study_state_province_territory,
@@ -762,5 +776,102 @@ Indices:
             data_collection_category_annotation_count:valid_count}) as data_collection,
             study.cancer_diagnosis_primary_site_count as primary_diagnosis_disease_count,
             COLLECT(DISTINCT(data.data_file_uuid)) as data_file_uuid     "
+  - index_name: study_overview
+    type: neo4j
+    # type mapping for each property of the index
+    # this was a legacy query
+    mapping:
+      study_short_name:
+        type: keyword
+      personnel:
+        type: nested
+        properties:
+          person_first_name:
+            type: keyword
+          person_last_name:
+            type: keyword
+          institution:
+            type: keyword
+          person_role:
+            type: keyword
+      publication:
+        type: nested
+        properties:
+          authorship:
+            type: keyword
+          publication_title:
+            type: keyword
+          year_of_publication:
+            type: keyword
+          journal_citation:
+            type: keyword
+          digital_object_id:
+            type: keyword
+          pubmed_id:
+            type: keyword
+          publication_record_id:
+            type: keyword
+      associated_links:
+        type: nested
+        properties:
+          associated_link_name:
+            type: keyword
+          associated_link_record_id:
+            type: keyword
+          associated_link_url:
+            type: keyword
+    # Cypher query will be used to retrieve data from Neo4j, and index into Elasticsearch
+    cypher_query: "
+      MATCH (study:study)
+      OPTIONAL MATCH (study)<-[:associated_with]-(study_person:study_personnel)
+      OPTIONAL MATCH (study)<-[:associated_with]-(study_pub:publication)
+      OPTIONAL MATCH (study)<-[:associated_with]-(links:associated_link)
+      RETURN 
+      study.study_short_name as study_short_name,
+      Collect(DISTINCT{
+        person_first_name: study_person.person_first_name,
+        person_last_name: study_person.person_last_name,
+        person_role: study_person.person_role,
+        institution: study_person.person_institution
+       }) as personnel,
+       Collect(DISTINCT{
+        authorship: study_pub.authorship,
+        publication_title: study_pub.publication_title,
+        year_of_publication: study_pub.year_of_publication,
+        journal_citation: study_pub.journal_citation,
+        digital_object_id:study_pub.digital_object_id,
+        publication_record_id:study_pub.publication_record_id
+       }) as publication,
+        Collect(DISTINCT{
+        associated_link_name: links.associated_link_name,
+        associated_link_record_id: links.associated_link_record_id,
+        associated_link_url: links.associated_link_url
+       }) as associated_links
+      "
+  - index_name: data_collection
+    type: neo4j
+  # type mapping for each property of the index
+  # This was a legacy query
+    mapping:
+      study_short_name:
+        type: keyword
+      data_collection:
+        type: nested
+        properties:
+          data_collection_category:
+            type: keyword
+          data_collection_category_annotation_count:
+            type: integer
+    cypher_query:
+      "
+      MATCH (study:study)
+      OPTIONAL MATCH (study)<-[:associated_with]-(data_collection:data_collection) 
+      RETURN
+      study.study_short_name as study_short_name,
+      Collect(Distinct{
+      data_collection_category:data_collection.data_collection_category,
+      data_collection_category_annotation_count:toInteger(data_collection.data_collection_category_annotation_count)
+      }) as data_collection
+      "
 
   
