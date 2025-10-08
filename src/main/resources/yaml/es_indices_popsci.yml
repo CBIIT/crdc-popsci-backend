@@ -26,43 +26,42 @@ Indices:
       participant_maximum_age_upper_bound:
         type: integer
     cypher_query: "
-      MATCH (study:study)
-      OPTIONAL MATCH (study)<-[:associated_with]-(participant:participant)
-      SET study.study_ending_year = replace(toString(study.study_ending_year), ' ', '')
-      SET study.study_ending_year = CASE
-          WHEN toLower(trim(toString(study.study_ending_year))) CONTAINS 'ongoing' THEN '3000'
-          ELSE study.study_ending_year
-      END
+        MATCH (study:study)
+          OPTIONAL MATCH (study)<-[:associated_with]-(participant:participant)
+        
+        // Clean up study ending year for all studies
+        SET study.study_ending_year = replace(toString(study.study_ending_year), ' ', '')
+        SET study.study_ending_year = CASE
+            WHEN toLower(trim(toString(study.study_ending_year))) CONTAINS 'ongoing' THEN '3000'
+            ELSE study.study_ending_year
+        END
 
-      // Clean up enrollment ending year  
-      SET study.enrollment_ending_year = replace(toString(study.enrollment_ending_year), ' ', '')
-      SET study.enrollment_ending_year = CASE
-          WHEN study.enrollment_ending_year = 'null' THEN 'Ongoing' 
-          ELSE COALESCE(toString(study.enrollment_ending_year), 'Ongoing')
-      END
+        // Clean up enrollment ending year for all studies
+        SET study.enrollment_ending_year = replace(toString(study.enrollment_ending_year), ' ', '')
+        SET study.enrollment_ending_year = CASE
+            WHEN study.enrollment_ending_year = 'null' THEN 'Ongoing' 
+            ELSE COALESCE(toString(study.enrollment_ending_year), 'Ongoing')
+        END
 
-      WITH study, 
-          max(participant.age_at_enrollment / 365.25) AS study_max_age,
-          min(participant.age_at_enrollment / 365.25) AS study_min_age
-
-      RETURN
-          study.study_short_name as study_short_name,
-          max(toInteger(study.number_of_participants)) as number_of_participant_upper_bound,
-          min(toInteger(study.number_of_participants)) as number_of_participant_lower_bound,
-          min(toInteger(study.enrollment_beginning_year)) as                       enrollment_beginning_year_lower_bound,
-          CASE
-                WHEN study.enrollment_ending_year = 'Ongoing' THEN 3000 
-                ELSE COALESCE(toInteger(study.enrollment_ending_year), 3000)
-      END as enrollment_ending_year_upper_bound,
-      min(toInteger(study.study_beginning_year)) as study_beginning_year_lower_bound,
-      max(toInteger(study.study_ending_year)) as study_ending_year_upper_bound,
-      toInteger(round(min(study_min_age))) as participant_minimum_age,
-      toInteger(round(max(study_max_age))) as participant_maximum_age_upper_bound"
-  # study_demographics
-  # Purpose:
-  #   Supplies demographic tab data for the study detail tab
-  #   Build per-study demographic aggregates (race, sex, ethnicity), age-band distributions,
-  #   and summary metadata (enrollment/study years, participant age stats). Used for demographics panels.
+        RETURN
+            'global_max_bounds' as study_short_name,
+            max(toInteger(study.number_of_participants)) as number_of_participant_upper_bound,
+            min(toInteger(study.number_of_participants)) as number_of_participant_lower_bound,
+            min(toInteger(study.enrollment_beginning_year)) as enrollment_beginning_year_lower_bound,
+            max(CASE 
+              WHEN study.enrollment_ending_year = 'Ongoing' THEN 3000 
+              ELSE toInteger(study.enrollment_ending_year) 
+            END) as enrollment_ending_year_upper_bound,
+            min(toInteger(study.study_beginning_year)) as study_beginning_year_lower_bound,
+            max(toInteger(study.study_ending_year)) as study_ending_year_upper_bound,
+            min(toInteger(round(participant.age_at_enrollment / 365.25))) as participant_minimum_age,
+            max(toInteger(round(participant.age_at_enrollment / 365.25))) as participant_maximum_age_upper_bound
+      "
+  # # study_demographics
+  # # Purpose:
+  # #   Supplies demographic tab data for the study detail tab
+  # #   Build per-study demographic aggregates (race, sex, ethnicity), age-band distributions,
+  # #   and summary metadata (enrollment/study years, participant age stats). Used for demographics panels.
   - index_name: study_demographics
     type: neo4j
     # type mapping for each property of the index
@@ -812,7 +811,7 @@ Indices:
           digital_object_id:
             type: keyword
           pubmed_id:
-            type: integer
+            type: keyword
           publication_record_id:
             type: keyword
       associated_links:
@@ -844,7 +843,7 @@ Indices:
         year_of_publication: study_pub.year_of_publication,
         journal_citation: study_pub.journal_citation,
         digital_object_id:study_pub.digital_object_id,
-        pubmed_id:toInteger(study_pub.pubmed_id),
+        pubmed_id:COALESCE(toInteger(study_pub.pubmed_id), ' '),
         publication_record_id:study_pub.publication_record_id
        }) as publication,
         Collect(DISTINCT{
