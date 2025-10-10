@@ -396,7 +396,7 @@ Indices:
           optional MATCH (study)<-[:associated_with]-(state:study_state_province_territory)
             optional MATCH (study)<-[:associated_with]-(neoplasm:primary_diagnosis)
              OPTIONAL MATCH (study)<-[:associated_with]-(data_collection:data_collection)
-              WHERE toInteger(data_collection.data_collection_category_annotation_count) <> 0 and data_collection.data_collection_category_annotation_count is not null
+             WHERE toInteger(data_collection.data_collection_category_annotation_count) <> 0 and data_collection.data_collection_category_annotation_count is not null and data_collection.data_collection_category <> 'Sexual Orientation and Gender Identity'
            SET study.study_ending_year = replace(toString(study.study_ending_year), ' ', '')
             SET study.study_ending_year = CASE
             WHEN toLower(trim(toString(study.study_ending_year))) CONTAINS 'ongoing' THEN REPLACE(toLower(trim(toString(study.study_ending_year))),study.study_ending_year, '3000')
@@ -438,8 +438,7 @@ Indices:
                 collect(DISTINCT{
                 group: study.study_short_name, 
                 subjects: study.cancer_diagnosis_primary_site_count
-          }) as study_cancer_diagnosis_primary_site_count
-     "
+          }) as study_cancer_diagnosis_primary_site_count "
   - index_name: data_volume_query
     type: neo4j
     # type mapping for each property of the index
@@ -593,10 +592,10 @@ Indices:
       race_group as race,
       sex_group as sex  
        "
-  # study_tab
-  # Purpose:
-  #   Main study-level index used for tabular study listings. Combines participant breakdowns,
-  #   study metadata, data collection category counts and file UUIDs for display and filtering.
+  # # study_tab
+  # # Purpose:
+  # #   Main study-level index used for tabular study listings. Combines participant breakdowns,
+  # #   study metadata, data collection category counts and file UUIDs for display and filtering.
   - index_name: study_tab
     type: neo4j
     mapping:
@@ -691,10 +690,10 @@ Indices:
       data_file_uuid:
         type: keyword
 
-      #    - UNWIND participant.race
-      #    - split pipe-delimited values, normalize and trim
-      #    - count tokens per study and collect as participant_races
-      #     this is done for sex, ethnicity and races
+  #     #    - UNWIND participant.race
+  #     #    - split pipe-delimited values, normalize and trim
+  #     #    - count tokens per study and collect as participant_races
+  #     #     this is done for sex, ethnicity and races
     cypher_query: "
            optional MATCH (study:study)<-[:associated_with]-(participant:participant) 
           UNWIND participant.race AS race_raw
