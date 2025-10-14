@@ -729,10 +729,10 @@ Indices:
           ELSE toInteger(data_collection.data_collection_category_annotation_count)
         END as valid_count,
         data_collection
-          MATCH (study)<-[:associated_with]-(study_person:study_personnel)
-          MATCH (study)<-[:associated_with]-(data:data_file)
-          MATCH (study)<-[:associated_with]-(country:study_country)
-          MATCH (study)<-[:associated_with]-(state:study_state_province_territory)
+          OPTIONAL MATCH (study)<-[:associated_with]-(study_person:study_personnel)
+          OPTIONAL MATCH (study)<-[:associated_with]-(data:data_file)
+          OPTIONAL MATCH (study)<-[:associated_with]-(country:study_country)
+          OPTIONAL MATCH (study)<-[:associated_with]-(state:study_state_province_territory)
           SET study.study_ending_year = replace(toString(study.study_ending_year), ' ', '')
           SET study.study_ending_year = CASE
             WHEN toLower(trim(study.study_ending_year)) CONTAINS 'ongoing' THEN REPLACE(toLower(trim(study.study_ending_year)),study.study_ending_year, '3000')
