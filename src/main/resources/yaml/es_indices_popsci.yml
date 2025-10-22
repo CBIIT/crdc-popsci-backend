@@ -546,7 +546,7 @@ Indices:
           sex_group,
           study,
           COLLECT(DISTINCT ethnicity_group) as ethnicity_group
-      OPTIONAL MATCH (study)<-[:associated_with]-(data:data_file)
+      OPTIONAL MATCH (study)<-[:associated_with]-(data:file)
       OPTIONAL MATCH (study)<-[:associated_with]-(data_collection:data_collection)
       WHERE toInteger(data_collection.data_collection_category_annotation_count) <> 0 and data_collection.data_collection_category_annotation_count is not null
       optional MATCH (study)<-[:associated_with]-(country:study_country)
@@ -730,7 +730,7 @@ Indices:
         END as valid_count,
         data_collection
           OPTIONAL MATCH (study)<-[:associated_with]-(study_person:study_personnel)
-          OPTIONAL MATCH (study)<-[:associated_with]-(data:data_file)
+          OPTIONAL MATCH (study)<-[:associated_with]-(data:file)
           OPTIONAL MATCH (study)<-[:associated_with]-(country:study_country)
           OPTIONAL MATCH (study)<-[:associated_with]-(state:study_state_province_territory)
           SET study.study_ending_year = replace(toString(study.study_ending_year), ' ', '')
