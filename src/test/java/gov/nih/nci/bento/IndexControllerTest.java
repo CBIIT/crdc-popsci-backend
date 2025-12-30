@@ -1,10 +1,14 @@
 package gov.nih.nci.bento;
 
 import gov.nih.nci.bento.controller.IndexController;
+import gov.nih.nci.bento.graphql.BentoGraphQL;
+import gov.nih.nci.bento.model.ConfigurationDAO;
+import gov.nih.nci.bento.service.ESService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -19,6 +23,14 @@ public class IndexControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    // Prevent accidental context failures from other controllers' dependencies
+    @MockBean
+    private ConfigurationDAO configurationDAO;
+    @MockBean
+    private BentoGraphQL bentoGraphQL;
+    @MockBean
+    private ESService esService;
 
     /**
      * Confirm that the "/ping" endpoint accept GET requests and verify the following within the response:
