@@ -1,3 +1,4 @@
+[![Coverage Status](https://coveralls.io/repos/github/CBIIT/crdc-popsci-backend/badge.svg?branch=2.0.0)](https://coveralls.io/github/CBIIT/crdc-popsci-backend?branch=2.0.0)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/197ca1f70b6a47618332548b6da480c1)](https://www.codacy.com/gh/CBIIT/bento-backend?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=CBIIT/bento-backend&amp;utm_campaign=Badge_Grade)
 
 # Bento Backend Framework Configuration Guide
