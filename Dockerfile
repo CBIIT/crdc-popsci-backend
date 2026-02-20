@@ -3,7 +3,6 @@ ARG ECR_REPO
 FROM maven:3.8.5-openjdk-17 as build
 WORKDIR /usr/src/app
 
-
 # Copy only git related files first
 COPY .gitmodules .
 COPY .git ./.git
@@ -11,21 +10,12 @@ COPY .git ./.git
 # Initialize and update submodules
 RUN git submodule update --init --recursive
 
-
 COPY . .
 RUN mvn package -DskipTests
 
 # Production stage
-# FROM ${ECR_REPO}/base-images:backend-jdk17
-
-# FROM tomcat:10.1.13-jdk17
-# RUN apt-get update && apt-get install unzip
-# RUN rm -rf /usr/local/tomcat/webapps.dist
-# RUN rm -rf /usr/local/tomcat/webapps/ROOT
-
-# FROM tomcat:10.1.44-jdk17 AS fnl_base_image
-FROM tomcat:11.0.10-jdk17-temurin-noble AS final
-
+#FROM tomcat:11.0.10-jdk17-temurin-noble AS fnl_base_image
+FROM tomcat:11.0.18-jdk17-temurin-noble AS fnl_base_image
 
 # Update and install required packages, then clean up
 RUN apt-get update && \
