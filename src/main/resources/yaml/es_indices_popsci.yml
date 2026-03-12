@@ -573,7 +573,7 @@ Indices:
       data.data_file_description as data_file_description,
       data.data_file_format as data_file_format,
       data.data_file_compression_status as data_file_compression_status,
-      'drs://nci-crdc-staging.datacommons.io/dg.4DFC/' + data.data_file_uuid AS drs_uri,
+      'drs://nci-crdc.datacommons.io/dg.4DFC/' + data.data_file_uuid AS drs_uri,
       toInteger(study.number_of_participants) as number_of_participants,
       COLLECT(DISTINCT(data_collection.data_collection_category)) as data_collection_category,
       study.enrollment_beginning_year as enrollment_beginning_year,
