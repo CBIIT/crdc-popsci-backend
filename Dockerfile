@@ -15,10 +15,10 @@ RUN mvn package -DskipTests
 
 # Production stage
 FROM tomcat:10.1.55-jdk21-temurin AS fnl_base_image
-ENV JAVA_OPTS="-XX:InitialRAMPercentage=25.0 -XX:MaxRAMPercentage=75.0"
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends unzip \
+    && apt-get upgrade -y --no-install-recommends libcap2 libgnutls30t64 sed \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /usr/local/tomcat/webapps.dist \
     && rm -rf /usr/local/tomcat/webapps/ROOT
