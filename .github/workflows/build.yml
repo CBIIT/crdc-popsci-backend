@@ -78,6 +78,55 @@ jobs:
         ignore-unfixed: true
         severity: 'MEDIUM,HIGH,CRITICAL'
 
+    - name: Run ClamAV virus scanner
+      id: clamav-scan
+      run: |
+        # Install ClamAV
+        sudo apt-get update -qq
+        sudo apt-get install -y clamav clamav-freshclam
+
+        # Stop services to unlock the DB
+        sudo systemctl stop clamav-freshclam clamav-daemon 2>/dev/null || true
+        sudo systemctl disable clamav-freshclam clamav-daemon 2>/dev/null || true
+
+        # Suppress the NotifyClamd error from freshclam
+        sudo sed -i '/^NotifyClamd/d' /etc/clamav/freshclam.conf 2>/dev/null || true
+
+        # Update virus definitions
+        sudo freshclam
+
+        # Save and extract the image
+        mkdir -p /tmp/image-scan /tmp/image-layers
+        docker save ${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} -o /tmp/image.tar
+        tar xf /tmp/image.tar -C /tmp/image-scan
+
+        # Handle both legacy (layer.tar) and OCI (blobs/sha256) image layouts
+        # Legacy Docker image format
+        for layer_tar in /tmp/image-scan/*/layer.tar; do
+          [ -f "$layer_tar" ] && tar xf "$layer_tar" -C /tmp/image-layers 2>/dev/null || true
+        done
+
+        # OCI image format (blobs/sha256/*)
+        for blob in /tmp/image-scan/blobs/sha256/*; do
+          if [ -f "$blob" ] && file "$blob" | grep -q "tar archive\|gzip compressed"; then
+            tar xf "$blob" -C /tmp/image-layers 2>/dev/null || true
+          fi
+        done
+
+        echo "Total files staged for scanning: $(find /tmp/image-layers -type f | wc -l)"
+
+        # Scan the unpacked image layers
+        clamscan \
+          --recursive \
+          --infected \
+          --detect-pua=yes \
+          --max-filesize=500M \
+          --max-scansize=1G \
+          --exclude-dir="^/proc" \
+          --exclude-dir="^/sys" \
+          /tmp/image-layers
+      continue-on-error: false
+    
     - name: AWS OIDC Authentication
       uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
       with:
