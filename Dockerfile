@@ -17,7 +17,11 @@ RUN mvn package -DskipTests
 #FROM tomcat:11.0.10-jdk17-temurin-noble AS fnl_base_image
 FROM tomcat:11.0.18-jdk17-temurin-noble AS fnl_base_image
 
-# Update and install required packages, then clean up
+# Update and install required packages, then clean up.
+# apt-get upgrade installs available security patches for base-image packages,
+# including fixes for CVEs addressed in POPSCI-531 (curl, dpkg, libcap2,
+# libgcrypt20, libgnutls30t64, and others where upstream patches are available).
+# Last updated: 2026-06-17
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y unzip && \
