@@ -25,7 +25,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /usr/local/tomcat/webapps.dist \
     && rm -rf /usr/local/tomcat/webapps/ROOT \
-    && groupadd -r tomcat && useradd -r -g tomcat -u 1000 tomcat \
+    && groupadd -r tomcat && useradd -r -g tomcat -u 1001 tomcat \
     && mkdir -p /usr/local/tomcat/logs /usr/local/tomcat/work /usr/local/tomcat/temp \
     && chown -R tomcat:tomcat /usr/local/tomcat/logs /usr/local/tomcat/work /usr/local/tomcat/temp
 
