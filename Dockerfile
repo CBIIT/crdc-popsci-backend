@@ -31,3 +31,7 @@ RUN sed -i 's|</Host>|  <Valve className="org.apache.catalina.valves.ErrorReport
 
 EXPOSE 8080
 COPY --from=build /usr/src/app/target/Bento-0.0.1.war /usr/local/tomcat/webapps/ROOT.war
+RUN mkdir /usr/local/tomcat/webapps/ROOT \
+    && cd /usr/local/tomcat/webapps/ROOT \
+    && jar -xf ../ROOT.war \
+    && rm ../ROOT.war
