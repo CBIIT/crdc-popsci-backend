@@ -19,8 +19,8 @@ FROM tomcat:11.0.22-jdk21-temurin AS fnl_base_image
 RUN apt-get update \
     && apt-get install -y --no-install-recommends unzip gosu \
     && apt-get install -y --no-install-recommends --only-upgrade \
-    libcap2 libgnutls30t64 sed dpkg curl libcurl4t64 \
-    locales libc-bin libc6 libssl3t64 openssl libpng16-16t64 \
+    libcap2 libgnutls30 sed dpkg curl libcurl4 \
+    locales libc-bin libc6 libssl3 openssl libpng16-16 \
     libnghttp2-14 libssh-4 libudev1 libsystemd0 libgcrypt20 \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /usr/local/tomcat/webapps.dist \
