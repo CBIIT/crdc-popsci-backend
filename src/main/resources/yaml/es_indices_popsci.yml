@@ -687,6 +687,8 @@ Indices:
             type: keyword
           data_collection_category_annotation_count:
             type: integer
+          data_collection_category_assessed:
+            type: keyword
       data_file_uuid:
         type: keyword
 
@@ -775,6 +777,7 @@ Indices:
             Collect(DiSTINCT(data_collection.data_collection_category)) as data_collection_category,
             collect(Distinct{
             data_collection_category:data_collection.data_collection_category,
+            data_collection_category_assessed:data_collection.data_collection_category_assessed,
             data_collection_category_annotation_count:valid_count}) as data_collection,
             study.cancer_diagnosis_primary_site_count as primary_diagnosis_disease_count,
             COLLECT(DISTINCT(data.data_file_uuid)) as data_file_uuid     "
@@ -873,6 +876,7 @@ Indices:
       study.study_short_name as study_short_name,
       Collect(Distinct{
       data_collection_category:data_collection.data_collection_category,
+      data_collection_category_assessed:data_collection.data_collection_category_assessed,
       data_collection_category_annotation_count:toInteger(data_collection.data_collection_category_annotation_count)
       }) as data_collection
       "
