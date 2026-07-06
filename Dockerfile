@@ -20,7 +20,7 @@ FROM tomcat:11.0.18-jdk17-temurin-noble AS fnl_base_image
 # Update and install required packages, then clean up
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y unzip && \
+    apt-get install -y unzip libnghttp2-14 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
