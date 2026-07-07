@@ -18,8 +18,18 @@ RUN mvn package -DskipTests
 FROM tomcat:11.0.18-jdk17-temurin-noble AS fnl_base_image
 
 # Update and install required packages, then clean up
+# Remediates POPSCI-536 base-image CVEs:
+#   CVE-2026-8925:           curl, libcurl4t64   fixed in 8.5.0-2ubuntu10.10
+#   CVE-2026-41991/41992:    gzip                fixed in 1.12-1ubuntu3.2
+#   CVE-2026-11822/11824:    libsqlite3-0        fixed in 3.45.1-1ubuntu2.6
+#   CVE-2026-13757:          libp11-kit0, p11-kit, p11-kit-modules — no fix available in Ubuntu yet
 RUN apt-get update && \
     apt-get upgrade -y && \
+    apt-get install -y --only-upgrade \
+        curl \
+        libcurl4t64 \
+        gzip \
+        libsqlite3-0 && \
     apt-get install -y unzip && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
