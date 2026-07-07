@@ -13,6 +13,11 @@ on:
         description: fail the build if vulnerabilities are found
         required: true 
         default: true
+      fail_on_clamav_scan:
+        type: boolean
+        description: fail the build if viruses are found
+        required: true 
+        default: true
       deploy_to_dev:
         type: boolean
         description: Deploy to development environment after build
@@ -80,6 +85,10 @@ jobs:
 
     - name: Run ClamAV virus scanner
       id: clamav-scan
+      env:
+        CLAMAV_DETECT_PUA: "false"          # set "true" to enable PUA detection
+        # CLAMAV_PUA_EXCLUDE: "Win.Trojan"    # comma-separated PUA categories to ignore
+        CLAMAV_FAIL_ON_FINDING: ${{ inputs.fail_on_clamav_scan }}
       run: |
         # Install ClamAV
         sudo apt-get update -qq
@@ -115,16 +124,49 @@ jobs:
 
         echo "Total files staged for scanning: $(find /tmp/image-layers -type f | wc -l)"
 
-        # Scan the unpacked image layers
-        clamscan \
-          --recursive \
-          --infected \
-          --detect-pua=yes \
-          --max-filesize=500M \
-          --max-scansize=1G \
-          --exclude-dir="^/proc" \
-          --exclude-dir="^/sys" \
-          /tmp/image-layers
+        # Build the clamscan argument list based on config
+        SCAN_ARGS=(
+          --recursive
+          --infected
+          --max-filesize=500M
+          --max-scansize=1G
+          --exclude-dir="^/proc"
+          --exclude-dir="^/sys"
+        )
+
+        if [ "${CLAMAV_DETECT_PUA}" = "true" ]; then
+          SCAN_ARGS+=(--detect-pua=yes)
+          # Exclude noisy PUA categories if any are specified
+          if [ -n "${CLAMAV_PUA_EXCLUDE}" ]; then
+            IFS=',' read -ra CATS <<< "${CLAMAV_PUA_EXCLUDE}"
+            for cat in "${CATS[@]}"; do
+              SCAN_ARGS+=(--exclude-pua="$(echo "$cat" | xargs)")
+            done
+          fi
+        fi
+
+        # Run the scan, capturing exit code (1 = virus found, 2 = error)
+        set +e
+        clamscan "${SCAN_ARGS[@]}" /tmp/image-layers
+        SCAN_EXIT=$?
+        set -e
+
+        echo "clamscan exit code: ${SCAN_EXIT}"
+
+        if [ "${SCAN_EXIT}" -eq 2 ]; then
+          echo "::error::ClamAV encountered an error during scanning."
+          exit 2
+        fi
+
+        if [ "${SCAN_EXIT}" -eq 1 ]; then
+          if [ "${CLAMAV_FAIL_ON_FINDING}" = "true" ]; then
+            echo "::error::ClamAV found infected files."
+            exit 1
+          else
+            echo "::warning::ClamAV found infected files, but CLAMAV_FAIL_ON_FINDING is false. Continuing."
+          fi
+        fi
+
       continue-on-error: false
     
     - name: AWS OIDC Authentication
