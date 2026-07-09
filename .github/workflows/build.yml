@@ -12,6 +12,11 @@ on:
         type: boolean
         description: fail the build if vulnerabilities are found
         required: true 
+        default: true
+      deploy_to_dev:
+        type: boolean
+        description: Deploy to development environment after build
+        required: true 
         default: false
 
 jobs:
@@ -36,7 +41,7 @@ jobs:
       run: |
         # Get all tags for the repo and find the latest tag for the branch being built
         git fetch --tags --force --quiet
-        tag=$(git tag -l $BRANCH_NAME* | sort -V | tail -1)
+        tag=$(git tag -l $BRANCH_NAME.* | sort -V | tail -1)
         if  [ ! -z "$tag" ];
         then
           # Increment the build number if a tag is found
@@ -71,7 +76,7 @@ jobs:
         format: 'table'
         exit-code: '${{ env.TRIVY_EXIT_CODE }}'
         ignore-unfixed: true
-        severity: 'CRITICAL,HIGH'
+        severity: 'MEDIUM,HIGH,CRITICAL'
 
     - name: AWS OIDC Authentication
       uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
@@ -98,6 +103,22 @@ jobs:
       run: |
         docker tag  $ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+    - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea     # v7.0.1
+      if: ${{ inputs.deploy_to_dev }}
+      with:
+        github-token: ${{ secrets.REPO_PAT }}
+        script: |
+          await github.rest.actions.createWorkflowDispatch({
+              owner: 'CBIIT',
+              repo: 'popsci-deployments',
+              workflow_id: 'manual-deploy.yml',
+              ref: 'main',
+              inputs: {
+                backend_image: '${{ env.IMAGE_TAG }}',
+                cdk_command: 'deploy'
+              }
+          })
 
     - name: Slack Notification
       uses: act10ns/slack@87c73aef9f8838eb6feae81589a6b1487a4a9e08
