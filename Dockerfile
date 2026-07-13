@@ -15,7 +15,7 @@ RUN mvn package -DskipTests
 
 # Production stage
 #FROM tomcat:11.0.10-jdk17-temurin-noble AS fnl_base_image
-FROM tomcat:11.0.18-jdk17-temurin-noble AS fnl_base_image
+FROM tomcat:11.0.24-jdk17-temurin-noble AS fnl_base_image
 
 # Update and install required packages, then clean up
 RUN apt-get update && \
