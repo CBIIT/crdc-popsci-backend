@@ -396,7 +396,7 @@ Indices:
           optional MATCH (study)<-[:associated_with]-(state:study_state_province_territory)
             optional MATCH (study)<-[:associated_with]-(neoplasm:primary_diagnosis)
              OPTIONAL MATCH (study)<-[:associated_with]-(data_collection:data_collection)
-             WHERE toInteger(data_collection.data_collection_category_annotation_count) <> 0 and data_collection.data_collection_category_annotation_count is not null and data_collection.data_collection_category <> 'Sexual Orientation and Gender Identity'
+             WHERE data_collection.data_collection_category_assessed is not null and data_collection.data_collection_category <> 'Sexual Orientation and Gender Identity'
            SET study.study_ending_year = replace(toString(study.study_ending_year), ' ', '')
             SET study.study_ending_year = CASE
             WHEN toLower(trim(toString(study.study_ending_year))) CONTAINS 'ongoing' THEN REPLACE(toLower(trim(toString(study.study_ending_year))),study.study_ending_year, '3000')
@@ -548,7 +548,7 @@ Indices:
           COLLECT(DISTINCT ethnicity_group) as ethnicity_group
       OPTIONAL MATCH (study)<-[:associated_with]-(data:file)
       OPTIONAL MATCH (study)<-[:associated_with]-(data_collection:data_collection)
-      WHERE toInteger(data_collection.data_collection_category_annotation_count) <> 0 and data_collection.data_collection_category_annotation_count is not null
+      WHERE data_collection.data_collection_category_assessed is not null
       optional MATCH (study)<-[:associated_with]-(country:study_country)
       optional MATCH (study)<-[:associated_with]-(state:study_state_province_territory)
 
@@ -685,8 +685,8 @@ Indices:
         properties:
           data_collection_category:
             type: keyword
-          data_collection_category_annotation_count:
-            type: integer
+          data_collection_category_assessed:
+            type: keyword
       data_file_uuid:
         type: keyword
 
@@ -722,11 +722,8 @@ Indices:
           OPTIONAL MATCH (study)<-[:associated_with]-(data_collection:data_collection)
           WITH study, participant_races, participant_sexes, participant_ethnicities, sex_group, race_group, ethnicity_group,
         CASE 
-          WHEN data_collection IS NULL THEN 0
-          WHEN data_collection.data_collection_category_annotation_count IS NULL THEN 0
-          WHEN toString(data_collection.data_collection_category_annotation_count) IN ['nan', 'NaN', 'null', '', 'NULL'] THEN 0
-          WHEN toInteger(data_collection.data_collection_category_annotation_count) <= 0 THEN 0
-          ELSE toInteger(data_collection.data_collection_category_annotation_count)
+          WHEN toString(data_collection.data_collection_category_assessed) IN ['nan', 'NaN', 'null', '', 'NULL'] THEN 0
+          ELSE data_collection.data_collection_category_assessed
         END as valid_count,
         data_collection
           OPTIONAL MATCH (study)<-[:associated_with]-(study_person:study_personnel)
@@ -775,7 +772,7 @@ Indices:
             Collect(DiSTINCT(data_collection.data_collection_category)) as data_collection_category,
             collect(Distinct{
             data_collection_category:data_collection.data_collection_category,
-            data_collection_category_annotation_count:valid_count}) as data_collection,
+            data_collection_category_assessed:valid_count}) as data_collection,
             study.cancer_diagnosis_primary_site_count as primary_diagnosis_disease_count,
             COLLECT(DISTINCT(data.data_file_uuid)) as data_file_uuid     "
   - index_name: study_overview
@@ -863,8 +860,8 @@ Indices:
         properties:
           data_collection_category:
             type: keyword
-          data_collection_category_annotation_count:
-            type: integer
+          data_collection_category_assessed:
+            type: keyword
     cypher_query:
       "
       MATCH (study:study)
@@ -873,7 +870,7 @@ Indices:
       study.study_short_name as study_short_name,
       Collect(Distinct{
       data_collection_category:data_collection.data_collection_category,
-      data_collection_category_annotation_count:toInteger(data_collection.data_collection_category_annotation_count)
+      data_collection_category_assessed:data_collection.data_collection_category_assessed
       }) as data_collection
       "
 
