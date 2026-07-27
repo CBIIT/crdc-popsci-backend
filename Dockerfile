@@ -22,6 +22,7 @@ RUN apt-get update \
     libcap2 libgnutls30t64 sed dpkg curl libcurl4t64 \
     locales libc-bin libc6 libssl3t64 openssl libpng16-16t64 \
     libnghttp2-14 libssh-4 libudev1 libsystemd0 libgcrypt20 \
+    gzip tar perl-base wget libsqlite3-0 \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /usr/local/tomcat/webapps.dist \
     && rm -rf /usr/local/tomcat/webapps/ROOT \
