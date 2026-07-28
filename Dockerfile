@@ -23,6 +23,7 @@ RUN apt-get update \
     locales libc-bin libc6 libssl3t64 openssl libpng16-16t64 \
     libnghttp2-14 libssh-4 libudev1 libsystemd0 libgcrypt20 \
     gzip tar perl-base wget libsqlite3-0 \
+    liblzma5 ncurses-base libncursesw6 libtinfo6 ncurses-bin \
     libgssapi-krb5-2 libk5crypto3 libkrb5-3 libkrb5support0 \
     libpam-modules libpam-modules-bin libpam-runtime libpam0g \
     && rm -rf /var/lib/apt/lists/* \
