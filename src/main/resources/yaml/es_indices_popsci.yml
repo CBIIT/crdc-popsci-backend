@@ -259,7 +259,7 @@ Indices:
     # Cypher query will be used to retrieve data from Neo4j, and index into Elasticsearch
     cypher_query:
        " 
-       optional MATCH (study:study)<-[:associated_with]-(participant:participant)
+        optional MATCH (study:study)<-[:associated_with]-(participant:participant)
         WITH count(participant) as cancer_diagnosis_disease_morphology_count,
         participant.cancer_diagnosis_disease_morphology as cancer_diagnosis_disease_morphology,
         participant.`ICD-O-3 Code_disease_morphology` as code_morphology,
@@ -396,7 +396,7 @@ Indices:
           optional MATCH (study)<-[:associated_with]-(state:study_state_province_territory)
             optional MATCH (study)<-[:associated_with]-(neoplasm:primary_diagnosis)
              OPTIONAL MATCH (study)<-[:associated_with]-(data_collection:data_collection)
-             WHERE data_collection.data_collection_category_assessed is not null and data_collection.data_collection_category <> 'Sexual Orientation and Gender Identity'
+             WHERE data_collection.data_collection_category_assessed is not null and data_collection.data_collection_category <> 'Sexual Orientation and Gender Identity' and  data_collection.data_collection_category_assessed = 'Yes'
            SET study.study_ending_year = replace(toString(study.study_ending_year), ' ', '')
             SET study.study_ending_year = CASE
             WHEN toLower(trim(toString(study.study_ending_year))) CONTAINS 'ongoing' THEN REPLACE(toLower(trim(toString(study.study_ending_year))),study.study_ending_year, '3000')
@@ -548,7 +548,7 @@ Indices:
           COLLECT(DISTINCT ethnicity_group) as ethnicity_group
       OPTIONAL MATCH (study)<-[:associated_with]-(data:file)
       OPTIONAL MATCH (study)<-[:associated_with]-(data_collection:data_collection)
-      WHERE data_collection.data_collection_category_assessed is not null
+      WHERE data_collection.data_collection_category_assessed is not null and  data_collection.data_collection_category_assessed = 'Yes'
       optional MATCH (study)<-[:associated_with]-(country:study_country)
       optional MATCH (study)<-[:associated_with]-(state:study_state_province_territory)
 
@@ -722,7 +722,7 @@ Indices:
           OPTIONAL MATCH (study)<-[:associated_with]-(data_collection:data_collection)
           WITH study, participant_races, participant_sexes, participant_ethnicities, sex_group, race_group, ethnicity_group,
         CASE 
-          WHEN toString(data_collection.data_collection_category_assessed) IN ['nan', 'NaN', 'null', '', 'NULL'] THEN 0
+          WHEN toString(data_collection.data_collection_category_assessed) IN ['nan', 'NaN', 'null', '', 'NULL'] THEN 'No'
           ELSE data_collection.data_collection_category_assessed
         END as valid_count,
         data_collection
