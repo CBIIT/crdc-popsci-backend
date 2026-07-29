@@ -62,7 +62,7 @@ type data_collection_page {
 }
 type data_collection {
   data_collection_category: String
-  data_collection_category_annotation_count: Int
+  data_collection_category_assessed: String
 }
 type personnel {
   person_role : String
