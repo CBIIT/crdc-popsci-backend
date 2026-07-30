@@ -14,7 +14,7 @@ COPY . .
 RUN mvn package -DskipTests
 
 # Production stage
-FROM tomcat:11.0.23-jdk21-temurin AS fnl_base_image
+FROM tomcat:11.0.24-jdk21-temurin AS fnl_base_image
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends unzip \
