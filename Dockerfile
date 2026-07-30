@@ -26,6 +26,8 @@ RUN apt-get update \
     liblzma5 ncurses-base libncursesw6 libtinfo6 ncurses-bin \
     libgssapi-krb5-2 libk5crypto3 libkrb5-3 libkrb5support0 \
     libpam-modules libpam-modules-bin libpam-runtime libpam0g \
+    libexpat1 zlib1g libp11-kit0 p11-kit p11-kit-modules \
+    libuuid1 libsmartcols1 libmount1 libblkid1 bsdutils util-linux \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /usr/local/tomcat/webapps.dist \
     && rm -rf /usr/local/tomcat/webapps/ROOT \
