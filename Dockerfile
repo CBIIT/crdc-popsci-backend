@@ -17,7 +17,7 @@ RUN mvn package -DskipTests
 FROM tomcat:11.0.23-jdk21-temurin AS fnl_base_image
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends unzip gosu \
+    && apt-get install -y --no-install-recommends unzip \
     && apt-get install -y --no-install-recommends --only-upgrade \
     libcap2 libgnutls30t64 sed dpkg curl libcurl4t64 \
     locales libc-bin libc6 libssl3t64 openssl libpng16-16t64 \
@@ -43,6 +43,7 @@ RUN mkdir /usr/local/tomcat/webapps/ROOT \
     && jar -xf ../ROOT.war \
     && rm ../ROOT.war
 
-COPY conf/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
+# Set ownership of writable dirs (already done above), then drop to non-root user
+RUN chown -R tomcat:tomcat /usr/local/tomcat/webapps
+USER tomcat
+ENTRYPOINT ["catalina.sh", "run"]
