@@ -45,7 +45,7 @@ RUN mkdir /usr/local/tomcat/webapps/ROOT \
     && jar -xf ../ROOT.war \
     && rm ../ROOT.war
 
-# Set ownership of writable dirs (already done above), then drop to non-root user
+# Ensure writable dirs are owned by tomcat, then drop to non-root user
 RUN chown -R tomcat:tomcat /usr/local/tomcat/webapps
 USER tomcat
 ENTRYPOINT ["catalina.sh", "run"]
