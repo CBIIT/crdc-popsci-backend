@@ -1,10 +1,7 @@
 #!/bin/sh
 set -e
 
-# Fix ownership of volume-mounted paths so the non-root tomcat user can write to them
-chown -R tomcat:tomcat \
-    /usr/local/tomcat/logs \
-    /usr/local/tomcat/work \
-    /usr/local/tomcat/temp
-
-exec gosu tomcat catalina.sh run
+# This entrypoint is no longer used.
+# The container runs as the 'tomcat' user via the USER directive in the Dockerfile.
+# Kept for backward compatibility reference only.
+exec catalina.sh run
