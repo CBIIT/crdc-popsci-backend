@@ -265,8 +265,8 @@ Indices:
         participant.`ICD-O-3 Code_disease_morphology` as code_morphology,
         study
         optional MATCH (study)<-[:associated_with]-(participant:participant)
-        UNWIND participant.cancer_diagnosis_primary_site AS cancer_diagnosis_primary_site_raw
-        UNWIND split(toLower(cancer_diagnosis_primary_site_raw), ',') AS cancer_diagnosis_primary_site_group
+        UNWIND coalesce(participant.cancer_diagnosis_primary_site, []) AS cancer_diagnosis_primary_site_raw
+        UNWIND [s IN split(toLower(cancer_diagnosis_primary_site_raw), ',') WHERE trim(s) <> ''] AS cancer_diagnosis_primary_site_group
         WITH trim(cancer_diagnosis_primary_site_group) as cancer_diagnosis_primary_site,
         count(*) as cancer_diagnosis_primary_site_count,
         cancer_diagnosis_disease_morphology,
