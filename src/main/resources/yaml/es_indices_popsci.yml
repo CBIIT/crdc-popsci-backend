@@ -260,13 +260,20 @@ Indices:
     cypher_query:
        " 
         optional MATCH (study:study)<-[:associated_with]-(participant:participant)
-        WITH count(participant) as cancer_diagnosis_disease_morphology_count,
-        participant.cancer_diagnosis_disease_morphology as cancer_diagnosis_disease_morphology,
-        participant.`ICD-O-3 Code_disease_morphology` as code_morphology,
-        study
+        WITH study,
+        [s IN split(toLower(coalesce(participant.cancer_diagnosis_disease_morphology, '')), ' ^ ') WHERE trim(s) <> ''] AS cancer_diagnosis_disease_morphology_parts,
+        [s IN split(coalesce(participant.`ICD-O-3 Code_disease_morphology`, ''), ' ^ ') WHERE trim(s) <> ''] AS code_morphology_parts
+        UNWIND range(0, size(cancer_diagnosis_disease_morphology_parts) - 1) AS morphology_part_index
+        WITH study,
+        trim(cancer_diagnosis_disease_morphology_parts[morphology_part_index]) as cancer_diagnosis_disease_morphology,
+        CASE WHEN morphology_part_index < size(code_morphology_parts) THEN trim(code_morphology_parts[morphology_part_index]) ELSE null END as code_morphology
+        WITH study,
+        cancer_diagnosis_disease_morphology,
+        code_morphology,
+        count(*) as cancer_diagnosis_disease_morphology_count
         optional MATCH (study)<-[:associated_with]-(participant:participant)
         UNWIND coalesce(participant.cancer_diagnosis_primary_site, []) AS cancer_diagnosis_primary_site_raw
-        UNWIND [s IN split(toLower(cancer_diagnosis_primary_site_raw), ',') WHERE trim(s) <> ''] AS cancer_diagnosis_primary_site_group
+        UNWIND [s IN split(toLower(cancer_diagnosis_primary_site_raw), ' ^ ') WHERE trim(s) <> ''] AS cancer_diagnosis_primary_site_group
         WITH trim(cancer_diagnosis_primary_site_group) as cancer_diagnosis_primary_site,
         count(*) as cancer_diagnosis_primary_site_count,
         cancer_diagnosis_disease_morphology,
