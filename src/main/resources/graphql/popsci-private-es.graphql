@@ -1,3 +1,55 @@
+type GlobalSearchResult {
+  study: [GS_Study]
+  study_count: Int
+
+  about_count: Int
+  about_page: [GS_About]
+
+  model_count: Int
+  model: [GS_Model]
+
+  gs_list: [GS_list]
+  model_search: [GS_Model_Search]
+}
+
+type GS_list {
+  autocomplete_list: String
+}
+
+type GS_Model {
+  type: String
+  node_name: String
+  property_name: String
+  property_description: String
+  property_required: String
+  property_type: String
+  value: String
+  highlight: String
+}
+
+type GS_About {
+  page: String
+  title: String
+  type: String
+  text: [String]
+}
+
+type GS_Model_Search {
+  node: String
+}
+
+type GS_Study {
+  study_name: String
+  study_short_name: String
+  study_participant_minimum_age: Int
+  study_participant_maximum_age: Int
+  study_design: String
+  number_of_participants: Int
+  cancer_type_count: Int
+}
+
+
+
 type SearchResult {
   numberOfStudies: Int
   numberOfDataCollectionCatagory: Int
@@ -372,6 +424,12 @@ type QueryType {
   dataCollectionPage(
     study_short_name: [String] = []
   ): [data_collection_page]
+
+  globalSearch(
+    input: String
+    first: Int = 10
+    offset: Int = 0
+  ): GlobalSearchResult
 
   minMaxBoundQuery: [minMaxBoundQuery]
 }
