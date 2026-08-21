@@ -1,170 +1,64 @@
 queries:
   - name: globalSearch
     returnFields:
-      - name: subjects
+      - name: study
         index:
-          - subjects
+          - global_stats_bar
         filter:
           type: global
-          defaultSortField: subject_id_num
+          defaultSortField: study_short_name
           searches:
-            - field: subject_id
+            - field: study_short_name
               type: wildcard
               caseInsensitive: true
-            - field: diagnosis_gs
+            - field: study_design
               type: wildcard
               caseInsensitive: true
-          typedSearch:
-            - field: age_at_index
-              type: term
-              option: integer
-        result:
-          type: global
-      - name: subject_count
-        index:
-          - subjects
-        filter:
-          type: global
-          defaultSortField: subject_id_num
-          searches:
-            - field: subject_id
+            - field: primary_diagnosis_disease_term
               type: wildcard
               caseInsensitive: true
-            - field: diagnosis_gs
+            - field: cancer_diagnosis_primary_site_list
+              type: wildcard
+              caseInsensitive: true
+            - field: cancer_diagnosis_disease_morphology_list
               type: wildcard
               caseInsensitive: true
           typedSearch:
-            - field: age_at_index
+            - field: cancer_type_count
               type: term
               option: integer
-        result:
-          type: int_total_count
-
-      - name: samples
-        index:
-          - samples
-        filter:
-          type: global
-          defaultSortField: subject_id_num
-          searches:
-            - field: sample_id_gs
-              type: wildcard
-            - field: sample_anatomic_site_gs
-              type: wildcard
-            - field: tissue_type_gs
-              type: wildcard
-        result:
-          type: global
-      - name: sample_count
-        index:
-          - samples
-        filter:
-          type: global
-          defaultSortField: subject_id_num
-          searches:
-            - field: sample_id_gs
-              type: wildcard
-            - field: sample_anatomic_site_gs
-              type: wildcard
-            - field: tissue_type_gs
-              type: wildcard
-        result:
-          type: int_total_count
-
-      - name: programs
-        index:
-          - programs
-        filter:
-          type: global
-          defaultSortField: program_id_kw
-          searches:
-            - field: program_id
-              type: wildcard
-            - field: program_code
-              type: wildcard
-            - field: program_name
-              type: wildcard
-        result:
-          type: global
-      - name: program_count
-        index:
-          - programs
-        filter:
-          type: global
-          defaultSortField: program_id_kw
-          searches:
-            - field: program_id
-              type: wildcard
-            - field: program_code
-              type: wildcard
-            - field: program_name
-              type: wildcard
-        result:
-          type: int_total_count
-
-      - name: studies
-        index:
-          - studies
-        filter:
-          type: global
-          defaultSortField: study_id_kw
-          searches:
-            - field: study_id
-              type: wildcard
-            - field: study_name
-              type: wildcard
-            - field: study_type
-              type: wildcard
         result:
           type: global
       - name: study_count
         index:
-          - studies
+          - global_stats_bar
         filter:
           type: global
-          defaultSortField: study_id_kw
+          defaultSortField: study_short_name
           searches:
-            - field: study_id
+            - field: study_short_name
               type: wildcard
-            - field: study_name
+              caseInsensitive: true
+            - field: study_design
               type: wildcard
-            - field: study_type
+              caseInsensitive: true
+            - field: primary_diagnosis_disease_term
               type: wildcard
+              caseInsensitive: true
+            - field: cancer_diagnosis_primary_site_list
+              type: wildcard
+              caseInsensitive: true
+            - field: cancer_diagnosis_disease_morphology_list
+              type: wildcard
+              caseInsensitive: true
+          typedSearch:
+            - field: cancer_type_count
+              type: term
+              option: integer
         result:
           type: int_total_count
 
-      - name: files
-        index:
-          - files
-        filter:
-          type: global
-          defaultSortField: file_id_num
-          searches:
-            - field: file_id_gs
-              type: wildcard
-            - field: file_name
-              type: wildcard
-              caseInsensitive: true
-            - field: file_format_gs
-              type: wildcard
-        result:
-          type: global
-      - name: file_count
-        index:
-          - files
-        filter:
-          type: global
-          defaultSortField: file_id_num
-          searches:
-            - field: file_id_gs
-              type: wildcard
-            - field: file_name
-              type: wildcard
-              caseInsensitive: true
-            - field: file_format_gs
-              type: wildcard
-        result:
-          type: int_total_count
+      
 
       # About Page
       # Always Set offset= 0 and default-size=10000
@@ -173,6 +67,8 @@ queries:
           - about_page
         filter:
           type: global
+          defaultSortField: title
+          sortDirection: ASC
           selectedField: content.paragraph
           searches:
             - field: content.paragraph
@@ -180,6 +76,7 @@ queries:
         highlight:
           fields:
             - content.paragraph
+          fragmentSize: 25
           preTag: $
           postTag: $
         result:
@@ -209,20 +106,22 @@ queries:
           - model_values
           - model_nodes
         filter:
+          defaultSortField: node
+          sortDirection: ASC
           type: global
           searches:
-            - field: value.keyword
+            - field: value_kw
               type: wildcard
             - field: property_name
-              type: term
+              type: wildcard
             - field: property_type
               type: term
             - field: property_description
               type: wildcard
-            - field: node_name
+            - field: node
               type: term
           typedSearch:
-            - field: property_required
+            - field: node
               type: match
               option: boolean
         highlight:
@@ -231,8 +130,7 @@ queries:
             - property_description
             - property_type
             - property_required
-            - value
-            - node_name
+            - node
           fragmentSize: 1
         result:
           type: global_multi_models
@@ -245,10 +143,10 @@ queries:
         filter:
           type: global
           searches:
-            - field: value.keyword
+            - field: value_kw
               type: wildcard
             - field: property_name
-              type: term
+              type: wildcard
             - field: property_type
               type: term
             - field: property_description
@@ -265,8 +163,49 @@ queries:
             - property_description
             - property_type
             - property_required
-            - value
+            - value_kw
             - node_name
           fragmentSize: 1
         result:
           type: int_total_count
+      - name: gs_list
+        index:
+          - gs_list
+        filter:
+          type: global
+          searches:
+            - field: autocomplete_list
+              type: wildcard
+          typedSearch:
+            - field: autocomplete_list
+              type: term
+              option: integer
+        highlight:
+          fields:
+            - autocomplete_list
+          fragmentSize: 1
+        result:
+          type: global
+      - name: model_search
+        index:
+          - model_nodes
+        filter:
+          type: global
+          searches:
+            - field: node
+              type: wildcard
+            - field: node_kw
+              type: term
+          typedSearch:
+            - field: node
+              type: match
+              option: boolean
+        highlight:
+          fields:
+            - node
+            - node_kw
+          fragmentSize: 1
+        result:
+          type: global_multi_models
+
+      
