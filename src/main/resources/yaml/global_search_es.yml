@@ -52,7 +52,7 @@ queries:
               type: wildcard
               caseInsensitive: true
           typedSearch:
-            - field: cancer_diagnosis_primary_site
+            - field: cancer_type_count
               type: term
               option: integer
         result:
