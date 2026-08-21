@@ -23,7 +23,6 @@ type GS_Model {
   property_description: String
   property_required: String
   property_type: String
-  value: String
   highlight: String
 }
 

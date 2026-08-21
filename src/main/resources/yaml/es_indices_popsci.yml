@@ -945,6 +945,4 @@ Indices:
         type: keyword
       property_type:
         type: keyword
-      value_kw:
-        type: keyword
   
