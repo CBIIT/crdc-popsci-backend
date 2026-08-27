@@ -17,13 +17,16 @@ RUN mvn package -DskipTests
 #FROM tomcat:11.0.10-jdk17-temurin-noble AS fnl_base_image
 FROM tomcat:11.0.18-jdk17-temurin-noble AS fnl_base_image
 
-# Update and install required packages, then clean up
+# Upgrade CVE-affected packages and install required tools, then clean up
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends --only-upgrade \
+    apt-get install -y --no-install-recommends \
         openssl \
         libssl3t64 \
-        perl-base && \
-    apt-get install -y --no-install-recommends unzip && \
+        perl-base \
+        unzip && \
+    dpkg --compare-versions "$(dpkg-query -W -f='${Version}' openssl)" ge "3.0.13-0ubuntu3.15" || { echo "openssl version is below 3.0.13-0ubuntu3.15" >&2; exit 1; } && \
+    dpkg --compare-versions "$(dpkg-query -W -f='${Version}' libssl3t64)" ge "3.0.13-0ubuntu3.15" || { echo "libssl3t64 version is below 3.0.13-0ubuntu3.15" >&2; exit 1; } && \
+    dpkg --compare-versions "$(dpkg-query -W -f='${Version}' perl-base)" ge "5.38.2-3.2ubuntu0.3" || { echo "perl-base version is below 5.38.2-3.2ubuntu0.3" >&2; exit 1; } && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
