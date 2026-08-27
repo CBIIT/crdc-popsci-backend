@@ -17,9 +17,9 @@ RUN mvn package -DskipTests
 #FROM tomcat:11.0.10-jdk17-temurin-noble AS fnl_base_image
 FROM tomcat:11.0.18-jdk17-temurin-noble AS fnl_base_image
 
-# Update and install required packages, then clean up
+# Update only the vulnerable base-image packages in scope and install required packages, then clean up
 RUN apt-get update && \
-    apt-get upgrade -y && \
+    apt-get install -y --only-upgrade perl-base openssl libssl3t64 && \
     apt-get install -y unzip && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
