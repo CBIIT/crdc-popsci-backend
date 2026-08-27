@@ -19,8 +19,11 @@ FROM tomcat:11.0.18-jdk17-temurin-noble AS fnl_base_image
 
 # Update and install required packages, then clean up
 RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y unzip && \
+    apt-get install -y --no-install-recommends --only-upgrade \
+        openssl \
+        libssl3t64 \
+        perl-base && \
+    apt-get install -y --no-install-recommends unzip && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
