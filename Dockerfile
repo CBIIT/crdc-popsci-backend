@@ -17,8 +17,8 @@ RUN mvn package -DskipTests
 #FROM tomcat:11.0.10-jdk17-temurin-noble AS fnl_base_image
 FROM tomcat:11.0.18-jdk17-temurin-noble AS fnl_base_image
 
-# Install the required package and upgrade only the Ubuntu packages needed to remediate
-# the in-scope container CVEs, then clean up.
+# POPSCI-595: install the required package and upgrade only the Ubuntu packages
+# pinned here to remediate the in-scope perl-base and p11-kit container CVEs.
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         unzip \
