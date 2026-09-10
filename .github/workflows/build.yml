@@ -8,12 +8,12 @@ on:
       environment:
         description: 'Which account the ECR repository is in'
         type: environment
-      fail_on_trivy_scan:
+      fail_on_cve_scan:
         type: boolean
         description: fail the build if vulnerabilities are found
         required: true 
         default: true
-      fail_on_clamav_scan:
+      fail_on_av_scan:
         type: boolean
         description: fail the build if viruses are found
         required: true 
@@ -64,31 +64,41 @@ jobs:
       run: |
         docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
 
-    - name: Set Trivy exit code
-      run: |
-        if  [[ ${{ inputs.fail_on_trivy_scan }} == true ]];
-        then
-          echo 'TRIVY_EXIT_CODE=1' >> $GITHUB_ENV
-        else
-          echo 'TRIVY_EXIT_CODE=0' >> $GITHUB_ENV
-        fi
+    # - name: Set CVE exit code
+    #   run: |
+    #     if  [[ ${{ inputs.fail_on_cve_scan }} == true ]];
+    #     then
+    #       echo 'CVE_EXIT_CODE=1' >> $GITHUB_ENV
+    #     else
+    #       echo 'CVE_EXIT_CODE=0' >> $GITHUB_ENV
+    #     fi
 
-    - name: Run Trivy vulnerability scanner
-      id: trivy-scan
-      uses: aquasecurity/trivy-action@b2933f565dbc598b29947660e66259e3c7bc8561
+    # - name: Run Trivy vulnerability scanner
+    #   id: trivy-scan
+    #   uses: aquasecurity/trivy-action@b2933f565dbc598b29947660e66259e3c7bc8561
+    #   with:
+    #     image-ref: '${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}'
+    #     format: 'table'
+    #     exit-code: '${{ env.CVE_EXIT_CODE }}'
+    #     ignore-unfixed: true
+    #     severity: 'MEDIUM,HIGH,CRITICAL'
+
+    - name: Run Grype vulnerability scanner
+      id: grype-scan
+      uses: anchore/scan-action@27805bf3b4e84b4a5c980df22ed233c00390a439
       with:
-        image-ref: '${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}'
-        format: 'table'
-        exit-code: '${{ env.TRIVY_EXIT_CODE }}'
-        ignore-unfixed: true
-        severity: 'MEDIUM,HIGH,CRITICAL'
+        image: '${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}'
+        severity-cutoff: medium
+        fail-build: ${{ inputs.fail_on_cve_scan }}
+        output-format: table
+        only-fixed: true
 
     - name: Run ClamAV virus scanner
       id: clamav-scan
       env:
         CLAMAV_DETECT_PUA: "false"          # set "true" to enable PUA detection
         # CLAMAV_PUA_EXCLUDE: "Win.Trojan"    # comma-separated PUA categories to ignore
-        CLAMAV_FAIL_ON_FINDING: ${{ inputs.fail_on_clamav_scan }}
+        CLAMAV_FAIL_ON_FINDING: ${{ inputs.fail_on_av_scan }}
       run: |
         # Install ClamAV
         sudo apt-get update -qq
