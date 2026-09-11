@@ -179,7 +179,7 @@ queries:
           typedSearch:
             - field: autocomplete_list
               type: term
-              option: integer
+              option: string
         highlight:
           fields:
             - autocomplete_list
