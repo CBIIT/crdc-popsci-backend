@@ -186,16 +186,6 @@ queries:
           fragmentSize: 1
         result:
           type: global
-      - name: gs_list
-        index:
-          - gs_list
-        filter:
-          type: global
-          searches:
-            - field: autocomplete_list
-              type: wildcard
-        result:
-          type: global
       - name: model_search
         index:
           - model_nodes
@@ -217,5 +207,6 @@ queries:
           fragmentSize: 1
         result:
           type: global_multi_models
+  
 
       
