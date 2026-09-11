@@ -887,7 +887,7 @@ Indices:
       }) as data_collection
       "
   - index_name: gs_list
-    type: study
+    type: neo4j
     # type mapping for each property of the index
     mapping:
       autocomplete_list:
