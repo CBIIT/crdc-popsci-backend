@@ -886,6 +886,22 @@ Indices:
       data_collection_category_assessed:data_collection.data_collection_category_assessed
       }) as data_collection
       "
+  - index_name: gs_list
+    type: neo4j
+    # type mapping for each property of the index
+    mapping:
+      autocomplete_list:
+        type: keyword
+    cypher_query: "
+      MATCH (study:study)
+      WITH study,
+           COLLECT(DISTINCT study.study_short_name) AS studyShortName,
+           COLLECT(DISTINCT study.study_name) AS studyName
+      WITH studyShortName + studyName AS list
+      UNWIND list AS autocomplete_list
+      RETURN DISTINCT autocomplete_list AS autocomplete_list
+      "
+
   - index_name: about_page
     type: about_file
     # type mapping for each property of the index
