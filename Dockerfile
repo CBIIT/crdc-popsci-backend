@@ -20,7 +20,7 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends unzip \
     && apt-get install -y --no-install-recommends --only-upgrade \
     libcap2 libgnutls30t64 sed dpkg curl libcurl4t64 \
-    locales libc-bin libc6 libssl3t64 openssl libpng16-16t64 \
+    locales=2.39-0ubuntu8.9 libc-bin=2.39-0ubuntu8.9 libc6=2.39-0ubuntu8.9 libssl3t64 openssl libpng16-16t64 \
     libnghttp2-14 libssh-4 libudev1 libsystemd0 libgcrypt20 \
     gzip tar perl-base wget libsqlite3-0 \
     liblzma5 ncurses-base libncursesw6 libtinfo6 ncurses-bin \
