@@ -207,6 +207,4 @@ queries:
           fragmentSize: 1
         result:
           type: global_multi_models
-  
-
       
