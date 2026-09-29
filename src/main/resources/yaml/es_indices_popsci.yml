@@ -896,10 +896,13 @@ Indices:
       MATCH (study:study)
       WITH study,
            COLLECT(DISTINCT study.study_short_name) AS studyShortName,
-           COLLECT(DISTINCT study.study_name) AS studyName
-      WITH studyShortName + studyName AS list
+           COLLECT(DISTINCT study.study_name) AS studyName,
+           COLLECT(DISTINCT study.study_design) AS studyDesign,
+           COLLECT(DISTINCT study.primary_disease) AS primaryDisease,
+           COLLECT(DISTINCT study.disease_morphology) AS diseaseMorphology
+      WITH studyShortName + studyName + studyDesign + primaryDisease + diseaseMorphology AS list
       UNWIND list AS autocomplete_list
-      RETURN DISTINCT autocomplete_list AS autocomplete_list
+      RETURN DISTINCT autocomplete_list
       "
 
   - index_name: about_page
