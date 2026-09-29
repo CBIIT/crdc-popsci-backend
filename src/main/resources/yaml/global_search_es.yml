@@ -179,7 +179,7 @@ queries:
           typedSearch:
             - field: autocomplete_list
               type: term
-              option: string
+              option: integer
         highlight:
           fields:
             - autocomplete_list
@@ -207,6 +207,4 @@ queries:
           fragmentSize: 1
         result:
           type: global_multi_models
-  
-
       
