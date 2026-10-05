@@ -14,20 +14,22 @@ COPY . .
 RUN mvn package -DskipTests
 
 # Production stage
-FROM tomcat:11.0.25-jdk21-temurin AS fnl_base_image
+FROM tomcat:11.0.25-jdk21-temurin@sha256:02c00744324bbe66a0d287f7f4664de728e628297a6916387d4cc1a6adcafb10 AS fnl_base_image
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends unzip \
     && apt-get install -y --no-install-recommends --only-upgrade \
     libcap2 libgnutls30t64 sed dpkg curl libcurl4t64 \
-    locales libc-bin libc6 libssl3t64 openssl libpng16-16t64 \
-    libnghttp2-14 libssh-4 libudev1 libsystemd0 libgcrypt20 \
-    gzip tar perl-base wget libsqlite3-0 \
+    locales=2.39-0ubuntu8.9 libc-bin=2.39-0ubuntu8.9 libc6=2.39-0ubuntu8.9 libssl3t64 openssl libpng16-16t64 \
+    libnghttp2-14 libssh-4=0.10.6-2ubuntu0.5 libudev1 libsystemd0 libgcrypt20 \
+    gzip tar perl-base=5.38.2-3.2ubuntu0.6 wget libsqlite3-0=3.45.1-1ubuntu2.8 \
     liblzma5 ncurses-base libncursesw6 libtinfo6 ncurses-bin \
     libgssapi-krb5-2 libk5crypto3 libkrb5-3 libkrb5support0 \
     libpam-modules libpam-modules-bin libpam-runtime libpam0g \
     libexpat1=2.6.1-2ubuntu0.6 zlib1g libp11-kit0 p11-kit p11-kit-modules \
-    libuuid1 libsmartcols1 libmount1 libblkid1 bsdutils util-linux \
+    libuuid1=2.39.3-9ubuntu6.6 libsmartcols1=2.39.3-9ubuntu6.6 libmount1=2.39.3-9ubuntu6.6 \
+    libblkid1=2.39.3-9ubuntu6.6 bsdutils=1:2.39.3-9ubuntu6.6 util-linux=2.39.3-9ubuntu6.6 \
+    mount=2.39.3-9ubuntu6.6 diffutils=1:3.10-1ubuntu0.1 libattr1=1:2.5.2-1ubuntu0.1 \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /usr/local/tomcat/webapps.dist \
     && rm -rf /usr/local/tomcat/webapps/ROOT \
