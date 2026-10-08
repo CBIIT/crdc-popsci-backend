@@ -1,27 +1,27 @@
 name: Build Image
-permissions:
+permissions: 
   contents: write
   id-token: write
 on:
   workflow_dispatch:
     inputs:
       environment:
-        description: "Which account the ECR repository is in"
+        description: 'Which account the ECR repository is in'
         type: environment
       fail_on_cve_scan:
         type: boolean
         description: fail the build if vulnerabilities are found
-        required: true
+        required: true 
         default: true
       fail_on_av_scan:
         type: boolean
         description: fail the build if viruses are found
-        required: true
+        required: true 
         default: true
       deploy_to_dev:
         type: boolean
         description: Deploy to development environment after build
-        required: true
+        required: true 
         default: false
 
 jobs:
@@ -30,199 +30,205 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     env:
-      ECR_REPOSITORY: crdc-popsci-backend
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      AWS_ROLE_TO_ASSUME: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-      AWS_REGION: ${{ secrets.AWS_REGION }}
-
+        ECR_REPOSITORY: crdc-popsci-backend
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        AWS_ROLE_TO_ASSUME: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+    
     steps:
-      - name: Check out code
-        uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5
 
-      - name: Set Image Tag
-        env:
-          BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
-        run: |
-          # Get all tags for the repo and find the latest tag for the branch being built
-          git fetch --tags --force --quiet
-          tag=$(git tag -l $BRANCH_NAME.* | sort -V | tail -1)
-          if  [ ! -z "$tag" ];
-          then
-            # Increment the build number if a tag is found
-            build_num=$(echo "${tag##*.}")
-            build_num=$((build_num+1))
-            echo "IMAGE_TAG=$GITHUB_REF_NAME.$build_num" >> $GITHUB_ENV
+    - name: Check out code
+      uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5
+      with:
+        ref: ${{ github.ref_name }}
+        submodules: recursive
+        clean: true
+        fetch-depth: 0
+
+    - name: Set Image Tag
+      env:
+        BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+      run: |
+        # Get all tags for the repo and find the latest tag for the branch being built
+        git fetch --tags --force --quiet
+        tag=$(git tag -l $BRANCH_NAME.* | sort -V | tail -1)
+        if  [ ! -z "$tag" ];
+        then
+          # Increment the build number if a tag is found
+          build_num=$(echo "${tag##*.}")
+          build_num=$((build_num+1))
+          echo "IMAGE_TAG=$GITHUB_REF_NAME.$build_num" >> $GITHUB_ENV
+        else
+          # If no tag is found create a new tag name
+          build_num=1
+          echo "IMAGE_TAG=$GITHUB_REF_NAME.$build_num" >> $GITHUB_ENV
+        fi
+        
+    - name: Build
+      id: build-image
+      run: |
+        docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
+
+    # - name: Set CVE exit code
+    #   run: |
+    #     if  [[ ${{ inputs.fail_on_cve_scan }} == true ]];
+    #     then
+    #       echo 'CVE_EXIT_CODE=1' >> $GITHUB_ENV
+    #     else
+    #       echo 'CVE_EXIT_CODE=0' >> $GITHUB_ENV
+    #     fi
+
+    # - name: Run Trivy vulnerability scanner
+    #   id: trivy-scan
+    #   uses: aquasecurity/trivy-action@b2933f565dbc598b29947660e66259e3c7bc8561
+    #   with:
+    #     image-ref: '${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}'
+    #     format: 'table'
+    #     exit-code: '${{ env.CVE_EXIT_CODE }}'
+    #     ignore-unfixed: true
+    #     severity: 'MEDIUM,HIGH,CRITICAL'
+
+    - name: Run Grype vulnerability scanner
+      id: grype-scan
+      uses: anchore/scan-action@27805bf3b4e84b4a5c980df22ed233c00390a439
+      with:
+        image: '${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}'
+        severity-cutoff: medium
+        fail-build: ${{ inputs.fail_on_cve_scan }}
+        output-format: table
+        only-fixed: true
+
+    - name: Run ClamAV virus scanner
+      id: clamav-scan
+      env:
+        CLAMAV_DETECT_PUA: "false"          # set "true" to enable PUA detection
+        # CLAMAV_PUA_EXCLUDE: "Win.Trojan"    # comma-separated PUA categories to ignore
+        CLAMAV_FAIL_ON_FINDING: ${{ inputs.fail_on_av_scan }}
+      run: |
+        # Install ClamAV
+        sudo apt-get update -qq
+        sudo apt-get install -y clamav clamav-freshclam
+
+        # Stop services to unlock the DB
+        sudo systemctl stop clamav-freshclam clamav-daemon 2>/dev/null || true
+        sudo systemctl disable clamav-freshclam clamav-daemon 2>/dev/null || true
+
+        # Suppress the NotifyClamd error from freshclam
+        sudo sed -i '/^NotifyClamd/d' /etc/clamav/freshclam.conf 2>/dev/null || true
+
+        # Update virus definitions
+        sudo freshclam
+
+        # Save and extract the image
+        mkdir -p /tmp/image-scan /tmp/image-layers
+        docker save ${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} -o /tmp/image.tar
+        tar xf /tmp/image.tar -C /tmp/image-scan
+
+        # Handle both legacy (layer.tar) and OCI (blobs/sha256) image layouts
+        # Legacy Docker image format
+        for layer_tar in /tmp/image-scan/*/layer.tar; do
+          [ -f "$layer_tar" ] && tar xf "$layer_tar" -C /tmp/image-layers 2>/dev/null || true
+        done
+
+        # OCI image format (blobs/sha256/*)
+        for blob in /tmp/image-scan/blobs/sha256/*; do
+          if [ -f "$blob" ] && file "$blob" | grep -q "tar archive\|gzip compressed"; then
+            tar xf "$blob" -C /tmp/image-layers 2>/dev/null || true
+          fi
+        done
+
+        echo "Total files staged for scanning: $(find /tmp/image-layers -type f | wc -l)"
+
+        # Build the clamscan argument list based on config
+        SCAN_ARGS=(
+          --recursive
+          --infected
+          --max-filesize=500M
+          --max-scansize=1G
+          --exclude-dir="^/proc"
+          --exclude-dir="^/sys"
+        )
+
+        if [ "${CLAMAV_DETECT_PUA}" = "true" ]; then
+          SCAN_ARGS+=(--detect-pua=yes)
+          # Exclude noisy PUA categories if any are specified
+          if [ -n "${CLAMAV_PUA_EXCLUDE}" ]; then
+            IFS=',' read -ra CATS <<< "${CLAMAV_PUA_EXCLUDE}"
+            for cat in "${CATS[@]}"; do
+              SCAN_ARGS+=(--exclude-pua="$(echo "$cat" | xargs)")
+            done
+          fi
+        fi
+
+        # Run the scan, capturing exit code (1 = virus found, 2 = error)
+        set +e
+        clamscan "${SCAN_ARGS[@]}" /tmp/image-layers
+        SCAN_EXIT=$?
+        set -e
+
+        echo "clamscan exit code: ${SCAN_EXIT}"
+
+        if [ "${SCAN_EXIT}" -eq 2 ]; then
+          echo "::error::ClamAV encountered an error during scanning."
+          exit 2
+        fi
+
+        if [ "${SCAN_EXIT}" -eq 1 ]; then
+          if [ "${CLAMAV_FAIL_ON_FINDING}" = "true" ]; then
+            echo "::error::ClamAV found infected files."
+            exit 1
           else
-            # If no tag is found create a new tag name
-            build_num=1
-            echo "IMAGE_TAG=$GITHUB_REF_NAME.$build_num" >> $GITHUB_ENV
+            echo "::warning::ClamAV found infected files, but CLAMAV_FAIL_ON_FINDING is false. Continuing."
           fi
+        fi
 
-      - name: Build
-        id: build-image
-        run: |
-          docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
+      continue-on-error: false
+    
+    - name: AWS OIDC Authentication
+      uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
+      with:
+        role-to-assume: ${{ env.AWS_ROLE_TO_ASSUME }}
+        aws-region: ${{ env.AWS_REGION }}
+        role-session-name: ${{ github.actor }}
 
-      # - name: Set CVE exit code
-      #   run: |
-      #     if  [[ ${{ inputs.fail_on_cve_scan }} == true ]];
-      #     then
-      #       echo 'CVE_EXIT_CODE=1' >> $GITHUB_ENV
-      #     else
-      #       echo 'CVE_EXIT_CODE=0' >> $GITHUB_ENV
-      #     fi
+    - name: Create Git tag for Image
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "github-actions@users.noreply.github.com"
+        git tag ${{ env.IMAGE_TAG }}
+        git push origin ${{ env.IMAGE_TAG }}
 
-      # - name: Run Trivy vulnerability scanner
-      #   id: trivy-scan
-      #   uses: aquasecurity/trivy-action@b2933f565dbc598b29947660e66259e3c7bc8561
-      #   with:
-      #     image-ref: '${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}'
-      #     format: 'table'
-      #     exit-code: '${{ env.CVE_EXIT_CODE }}'
-      #     ignore-unfixed: true
-      #     severity: 'MEDIUM,HIGH,CRITICAL'
+    - name: Login to Amazon ECR
+      id: login-aws-ecr
+      uses: aws-actions/amazon-ecr-login@5a88a04c91d5c6f97aae0d9be790e64d9b1d47b7
+    
+    - name: Push to Amazon ECR
+      id: push-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-aws-ecr.outputs.registry }}
+      run: |
+        docker tag  $ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: Run Grype vulnerability scanner
-        id: grype-scan
-        uses: anchore/scan-action@27805bf3b4e84b4a5c980df22ed233c00390a439
-        with:
-          image: "${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
-          severity-cutoff: medium
-          fail-build: ${{ inputs.fail_on_cve_scan }}
-          output-format: table
-          only-fixed: true
+    - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea     # v7.0.1
+      if: ${{ inputs.deploy_to_dev }}
+      with:
+        github-token: ${{ secrets.REPO_PAT }}
+        script: |
+          await github.rest.actions.createWorkflowDispatch({
+              owner: 'CBIIT',
+              repo: 'popsci-deployments',
+              workflow_id: 'manual-deploy.yml',
+              ref: 'main',
+              inputs: {
+                backend_image: '${{ env.IMAGE_TAG }}',
+                cdk_command: 'deploy'
+              }
+          })
 
-      - name: Run ClamAV virus scanner
-        id: clamav-scan
-        env:
-          CLAMAV_DETECT_PUA: "false" # set "true" to enable PUA detection
-          # CLAMAV_PUA_EXCLUDE: "Win.Trojan"    # comma-separated PUA categories to ignore
-          CLAMAV_FAIL_ON_FINDING: ${{ inputs.fail_on_av_scan }}
-        run: |
-          # Install ClamAV
-          sudo apt-get update -qq
-          sudo apt-get install -y clamav clamav-freshclam
-
-          # Stop services to unlock the DB
-          sudo systemctl stop clamav-freshclam clamav-daemon 2>/dev/null || true
-          sudo systemctl disable clamav-freshclam clamav-daemon 2>/dev/null || true
-
-          # Suppress the NotifyClamd error from freshclam
-          sudo sed -i '/^NotifyClamd/d' /etc/clamav/freshclam.conf 2>/dev/null || true
-
-          # Update virus definitions
-          sudo freshclam
-
-          # Save and extract the image
-          mkdir -p /tmp/image-scan /tmp/image-layers
-          docker save ${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} -o /tmp/image.tar
-          tar xf /tmp/image.tar -C /tmp/image-scan
-
-          # Handle both legacy (layer.tar) and OCI (blobs/sha256) image layouts
-          # Legacy Docker image format
-          for layer_tar in /tmp/image-scan/*/layer.tar; do
-            [ -f "$layer_tar" ] && tar xf "$layer_tar" -C /tmp/image-layers 2>/dev/null || true
-          done
-
-          # OCI image format (blobs/sha256/*)
-          for blob in /tmp/image-scan/blobs/sha256/*; do
-            if [ -f "$blob" ] && file "$blob" | grep -q "tar archive\|gzip compressed"; then
-              tar xf "$blob" -C /tmp/image-layers 2>/dev/null || true
-            fi
-          done
-
-          echo "Total files staged for scanning: $(find /tmp/image-layers -type f | wc -l)"
-
-          # Build the clamscan argument list based on config
-          SCAN_ARGS=(
-            --recursive
-            --infected
-            --max-filesize=500M
-            --max-scansize=1G
-            --exclude-dir="^/proc"
-            --exclude-dir="^/sys"
-          )
-
-          if [ "${CLAMAV_DETECT_PUA}" = "true" ]; then
-            SCAN_ARGS+=(--detect-pua=yes)
-            # Exclude noisy PUA categories if any are specified
-            if [ -n "${CLAMAV_PUA_EXCLUDE}" ]; then
-              IFS=',' read -ra CATS <<< "${CLAMAV_PUA_EXCLUDE}"
-              for cat in "${CATS[@]}"; do
-                SCAN_ARGS+=(--exclude-pua="$(echo "$cat" | xargs)")
-              done
-            fi
-          fi
-
-          # Run the scan, capturing exit code (1 = virus found, 2 = error)
-          set +e
-          clamscan "${SCAN_ARGS[@]}" /tmp/image-layers
-          SCAN_EXIT=$?
-          set -e
-
-          echo "clamscan exit code: ${SCAN_EXIT}"
-
-          if [ "${SCAN_EXIT}" -eq 2 ]; then
-            echo "::error::ClamAV encountered an error during scanning."
-            exit 2
-          fi
-
-          if [ "${SCAN_EXIT}" -eq 1 ]; then
-            if [ "${CLAMAV_FAIL_ON_FINDING}" = "true" ]; then
-              echo "::error::ClamAV found infected files."
-              exit 1
-            else
-              echo "::warning::ClamAV found infected files, but CLAMAV_FAIL_ON_FINDING is false. Continuing."
-            fi
-          fi
-
-        continue-on-error: false
-
-      - name: AWS OIDC Authentication
-        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
-        with:
-          role-to-assume: ${{ env.AWS_ROLE_TO_ASSUME }}
-          aws-region: ${{ env.AWS_REGION }}
-          role-session-name: ${{ github.actor }}
-
-      - name: Create Git tag for Image
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "github-actions@users.noreply.github.com"
-          git tag ${{ env.IMAGE_TAG }}
-          git push origin ${{ env.IMAGE_TAG }}
-
-      - name: Login to Amazon ECR
-        id: login-aws-ecr
-        uses: aws-actions/amazon-ecr-login@5a88a04c91d5c6f97aae0d9be790e64d9b1d47b7
-
-      - name: Push to Amazon ECR
-        id: push-image
-        env:
-          ECR_REGISTRY: ${{ steps.login-aws-ecr.outputs.registry }}
-        run: |
-          docker tag  $ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-
-      - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-        if: ${{ inputs.deploy_to_dev }}
-        with:
-          github-token: ${{ secrets.REPO_PAT }}
-          script: |
-            await github.rest.actions.createWorkflowDispatch({
-                owner: 'CBIIT',
-                repo: 'popsci-deployments',
-                workflow_id: 'manual-deploy.yml',
-                ref: 'main',
-                inputs: {
-                  backend_image: '${{ env.IMAGE_TAG }}',
-                  cdk_command: 'deploy'
-                }
-            })
-
-      - name: Slack Notification
-        uses: act10ns/slack@87c73aef9f8838eb6feae81589a6b1487a4a9e08
-        with:
-          status: ${{ job.status }}
-          steps: ${{ toJson(steps) }}
-        if: always()
+    - name: Slack Notification
+      uses: act10ns/slack@87c73aef9f8838eb6feae81589a6b1487a4a9e08
+      with:
+        status: ${{ job.status }}
+        steps: ${{ toJson(steps) }}
+      if: always()
