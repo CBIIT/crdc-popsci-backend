@@ -26,7 +26,7 @@ RUN apt-get update \
     liblzma5 ncurses-base libncursesw6 libtinfo6 ncurses-bin \
     libgssapi-krb5-2 libk5crypto3 libkrb5-3 libkrb5support0 \
     libpam-modules libpam-modules-bin libpam-runtime libpam0g \
-    libexpat1=2.6.1-2ubuntu0.6 zlib1g libp11-kit0 p11-kit p11-kit-modules \
+    libexpat1=2.6.1-2ubuntu0.6 libfreetype6=2.13.2+dfsg-1ubuntu0.2 zlib1g libp11-kit0 p11-kit p11-kit-modules \
     libuuid1=2.39.3-9ubuntu6.6 libsmartcols1=2.39.3-9ubuntu6.6 libmount1=2.39.3-9ubuntu6.6 \
     libblkid1=2.39.3-9ubuntu6.6 bsdutils=1:2.39.3-9ubuntu6.6 util-linux=2.39.3-9ubuntu6.6 \
     mount=2.39.3-9ubuntu6.6 diffutils=1:3.10-1ubuntu0.1 libattr1=1:2.5.2-1ubuntu0.1 \
