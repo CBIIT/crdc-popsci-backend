@@ -1,53 +1,28 @@
 # Build stage
-ARG ECR_REPO
-FROM maven:3.9.9-eclipse-temurin-21 AS build
+FROM maven:3.9.16-eclipse-temurin-25-noble AS build
 WORKDIR /usr/src/app
 
-# Copy only git related files first
-COPY .gitmodules .
-COPY .git ./.git
+# download dependencies
+COPY pom.xml .
+RUN mvn -B dependency:go-offline dependency:resolve-plugins -DskipTests
 
-# Initialize and update submodules
-RUN git submodule update --init --recursive
-
-COPY . .
-RUN mvn package -DskipTests
+# copy source code and build the project
+COPY src ./src
+RUN mvn -B package -DskipTests
 
 # Production stage
-FROM tomcat:11.0.26-jdk21-temurin-noble@sha256:5a17f80e55b73d6df46a195183c92558d8661277e3bf25534db1f205fbeb6408 AS fnl_base_image
+FROM tomcat:11.0.26-jdk25-temurin-noble@sha256:b3106f307e52ec60ba67e1ad5daa7d6ad6259f5321ccec565d3f0985b287dd5d AS fnl_base_image
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends unzip \
-    && apt-get install -y --no-install-recommends --only-upgrade \
-    libcap2 libgnutls30t64 sed dpkg curl libcurl4t64 \
-    locales=2.39-0ubuntu8.9 libc-bin=2.39-0ubuntu8.9 libc6=2.39-0ubuntu8.9 libssl3t64 openssl libpng16-16t64 \
-    libnghttp2-14 libssh-4=0.10.6-2ubuntu0.5 libudev1 libsystemd0 libgcrypt20 \
-    gzip tar perl-base=5.38.2-3.2ubuntu0.6 wget libsqlite3-0=3.45.1-1ubuntu2.8 \
-    liblzma5 ncurses-base libncursesw6 libtinfo6 ncurses-bin \
-    libgssapi-krb5-2 libk5crypto3 libkrb5-3 libkrb5support0 \
-    libpam-modules libpam-modules-bin libpam-runtime libpam0g \
-    libexpat1=2.6.1-2ubuntu0.6 libfreetype6=2.13.2+dfsg-1ubuntu0.2 zlib1g libp11-kit0 p11-kit p11-kit-modules \
-    libuuid1=2.39.3-9ubuntu6.6 libsmartcols1=2.39.3-9ubuntu6.6 libmount1=2.39.3-9ubuntu6.6 \
-    libblkid1=2.39.3-9ubuntu6.6 bsdutils=1:2.39.3-9ubuntu6.6 util-linux=2.39.3-9ubuntu6.6 \
-    mount=2.39.3-9ubuntu6.6 diffutils=1:3.10-1ubuntu0.1 libattr1=1:2.5.2-1ubuntu0.1 \
-    && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /usr/local/tomcat/webapps.dist \
-    && rm -rf /usr/local/tomcat/webapps/ROOT \
-    && groupadd -r tomcat && useradd -r -g tomcat -u 1001 tomcat \
-    && mkdir -p /usr/local/tomcat/logs /usr/local/tomcat/work /usr/local/tomcat/temp \
-    && chown -R tomcat:tomcat /usr/local/tomcat/logs /usr/local/tomcat/work /usr/local/tomcat/temp
-
-# Modify the server.xml file to block error reporting
-RUN sed -i 's|</Host>|  <Valve className="org.apache.catalina.valves.ErrorReportValve"\n               showReport="false"\n               showServerInfo="false" />\n\n      </Host>|' conf/server.xml
-
+ENV JAVA_OPTS="-XX:InitialRAMPercentage=25 -XX:MaxRAMPercentage=70"
+ENV TZ="America/New_York"
 EXPOSE 8080
+# remove existing webapps (including examples), copy the new war file, and run as non-root
+RUN useradd -r nonrootuser && rm -rf /usr/local/tomcat/webapps/*
+# copy the war file
 COPY --from=build /usr/src/app/target/Bento-0.0.1.war /usr/local/tomcat/webapps/ROOT.war
-RUN mkdir /usr/local/tomcat/webapps/ROOT \
-    && cd /usr/local/tomcat/webapps/ROOT \
-    && jar -xf ../ROOT.war \
-    && rm ../ROOT.war
-
-# Ensure writable dirs are owned by tomcat, then drop to non-root user
-RUN chown -R tomcat:tomcat /usr/local/tomcat/webapps
-USER tomcat
-ENTRYPOINT ["catalina.sh", "run"]
+# change ownership of the tomcat directory to the nonroot user
+RUN chown -R nonrootuser:nonrootuser /usr/local/tomcat
+# Base image patching
+RUN apt update && apt upgrade -y
+# switch to nonroot user
+USER nonrootuser
