@@ -14,7 +14,7 @@ COPY . .
 RUN mvn package -DskipTests
 
 # Production stage
-FROM tomcat:11.0.25-jdk21-temurin@sha256:02c00744324bbe66a0d287f7f4664de728e628297a6916387d4cc1a6adcafb10 AS fnl_base_image
+FROM tomcat:11.0.26-jdk21-temurin@sha256:85bca16d6dda8eec14ca205d424d9803ebee9174662dc7647fc8c07ffe560e0e AS fnl_base_image
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends unzip \
