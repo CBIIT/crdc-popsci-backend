@@ -1,3 +1,5 @@
+[![Coverage Status](https://coveralls.io/repos/github/CBIIT/crdc-popsci-backend/badge.svg?branch=2.0.2)](https://coveralls.io/github/CBIIT/crdc-popsci-backend?branch=2.0.2)
+
 # Population Science Data Commons(PSDC) Backend
 
 The CRDC PSDC backend is a Spring Boot API packaged as a WAR for external Tomcat. It serves private and public GraphQL queries backed by OpenSearch. Shared Bento application code lives in the `bento-backend-core` Git submodule at `src/main/java/gov/nih/nci/bento`.
