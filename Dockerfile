@@ -1,51 +1,47 @@
 # Build stage
-ARG ECR_REPO
-FROM maven:3.9.9-eclipse-temurin-21 AS build
+FROM maven:3.9.16-eclipse-temurin-25-noble AS build
 WORKDIR /usr/src/app
 
-# Copy only git related files first
-COPY .gitmodules .
-COPY .git ./.git
+# download dependencies
+COPY pom.xml .
+RUN mvn -B dependency:go-offline dependency:resolve-plugins -DskipTests
 
-# Initialize and update submodules
-RUN git submodule update --init --recursive
-
-COPY . .
-RUN mvn package -DskipTests
+# copy source code and build the project
+COPY src ./src
+RUN mvn -B package -DskipTests
 
 # Production stage
-FROM tomcat:11.0.25-jdk21-temurin AS fnl_base_image
+FROM tomcat:11.0.26-jdk25-temurin-noble AS fnl_base_image
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends unzip \
-    && apt-get install -y --no-install-recommends --only-upgrade \
-    libcap2 libgnutls30t64 sed dpkg curl libcurl4t64 \
-    locales libc-bin libc6 libssl3t64 openssl libpng16-16t64 \
-    libnghttp2-14 libssh-4 libudev1 libsystemd0 libgcrypt20 \
-    gzip tar perl-base wget libsqlite3-0 \
-    liblzma5 ncurses-base libncursesw6 libtinfo6 ncurses-bin \
-    libgssapi-krb5-2 libk5crypto3 libkrb5-3 libkrb5support0 \
-    libpam-modules libpam-modules-bin libpam-runtime libpam0g \
-    libexpat1 zlib1g libp11-kit0 p11-kit p11-kit-modules \
-    libuuid1 libsmartcols1 libmount1 libblkid1 bsdutils util-linux \
-    && rm -rf /var/lib/apt/lists/* \
+ENV JAVA_OPTS="-XX:InitialRAMPercentage=25 -XX:MaxRAMPercentage=70"
+ENV TZ="America/New_York"
+EXPOSE 8080
+
+# Base image patching
+RUN apt update && apt upgrade -y
+
+# Remove default applications and create the non-root Tomcat account.
+RUN groupadd -r tomcat \
+    && useradd -r -g tomcat -u 1001 tomcat \
     && rm -rf /usr/local/tomcat/webapps.dist \
     && rm -rf /usr/local/tomcat/webapps/ROOT \
-    && groupadd -r tomcat && useradd -r -g tomcat -u 1001 tomcat \
-    && mkdir -p /usr/local/tomcat/logs /usr/local/tomcat/work /usr/local/tomcat/temp \
-    && chown -R tomcat:tomcat /usr/local/tomcat/logs /usr/local/tomcat/work /usr/local/tomcat/temp
+    && mkdir -p /usr/local/tomcat/logs /usr/local/tomcat/work /usr/local/tomcat/temp
 
-# Modify the server.xml file to block error reporting
-RUN sed -i 's|</Host>|  <Valve className="org.apache.catalina.valves.ErrorReportValve"\n               showReport="false"\n               showServerInfo="false" />\n\n      </Host>|' conf/server.xml
-
-EXPOSE 8080
+# copy the war file
 COPY --from=build /usr/src/app/target/Bento-0.0.1.war /usr/local/tomcat/webapps/ROOT.war
-RUN mkdir /usr/local/tomcat/webapps/ROOT \
+
+# Expand the WAR during the image build so Tomcat does not need to create ROOT at startup.
+RUN mkdir -p /usr/local/tomcat/webapps/ROOT \
     && cd /usr/local/tomcat/webapps/ROOT \
     && jar -xf ../ROOT.war \
     && rm ../ROOT.war
 
-# Ensure writable dirs are owned by tomcat, then drop to non-root user
-RUN chown -R tomcat:tomcat /usr/local/tomcat/webapps
+# Ensure Tomcat can access the application and write temporary/work files as non-root.
+RUN chown -R tomcat:tomcat \
+    /usr/local/tomcat/webapps \
+    /usr/local/tomcat/logs \
+    /usr/local/tomcat/work \
+    /usr/local/tomcat/temp
+
 USER tomcat
 ENTRYPOINT ["catalina.sh", "run"]
