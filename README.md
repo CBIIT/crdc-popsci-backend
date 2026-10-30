@@ -1,42 +1,54 @@
-[![Coverage Status](https://coveralls.io/repos/github/CBIIT/crdc-popsci-backend/badge.svg?branch=2.0.0)](https://coveralls.io/github/CBIIT/crdc-popsci-backend?branch=2.0.0)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/197ca1f70b6a47618332548b6da480c1)](https://www.codacy.com/gh/CBIIT/bento-backend?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=CBIIT/bento-backend&amp;utm_campaign=Badge_Grade)
+[![Coverage Status](https://coveralls.io/repos/github/CBIIT/crdc-popsci-backend/badge.svg?branch=2.0.2)](https://coveralls.io/github/CBIIT/crdc-popsci-backend?branch=2.0.2)
 
-# Bento Backend Framework Configuration Guide
-This is the user documentation for the Bento Backend.
+# Population Science Data Commons(PSDC) Backend
 
-## Introduction
-The Bento Backend Framework is a server-side backend written in Java to be used with Bento based applications. The Bento Backend is meant to be used in conjunction with the Bento Frontend Framework and a Neo4j database running the GraphQL plugin.
+The CRDC PSDC backend is a Spring Boot API packaged as a WAR for external Tomcat. It serves private and public GraphQL queries backed by OpenSearch. Shared Bento application code lives in the `bento-backend-core` Git submodule at `src/main/java/gov/nih/nci/bento`.
 
-The Bento Backend can be found in this Github Repository: [Bento Backend](https://github.com/CBIIT/bento-backend)
-## Pre-requisites
-*   Java 11 or newer installed on the server hosting the Bento Backend
-*   The Neo4j database containing the Bento data has been initialized and is running
+## Prerequisites
 
-## Configuration
-The following file will need to be edited to configure the Bento Backend Code to work within a Bento based application:
+- Eclipse Temurin JDK 25. The repository includes the Maven wrapper, so a separate Maven installation is not required.
+- Access to the Neo4j and OpenSearch services configured for the target environment. Redis and request authentication are optional and controlled by configuration.
+- Docker to build the production WAR image on Tomcat 11 / JDK 25.
 
-**````src/main/resources/application.properties````**
+## Setup
 
-1.  create this file by creating a copy of ````src/main/resources/application_example.properties```` and renaming it to use as a starting point.
-2.  ````Line 2```` - change the value of ````neo4j.graphql.endpoint```` to the GraphQL endpoint running on the applications Neo4j database.
-3.  ````Line 4```` - change the value of  ````graphql.schema```` to the path of the GraphQL schema file that will be uploaded to the database. The file path should be relative to the ````main```` folder in the project.
-4.  ````Line 5```` - change the value of ````neo4j.authorization```` to the basic access authentication for your Neo4j database. (See the **Basic Access Authentication** section for instructions on how to generate this value).
-5.  ````Line 9```` - this value is an all lowercase Boolean value to determine if GraphQL queries will be enabled for the application.
-6.  ````Line 10```` - this value is an all lowercase Boolean value to determine if GraphQL mutations will be enabled for the application.
+Initialize the shared backend submodule after cloning:
 
-## Basic Access Authentication
-The basic access authentication value used in the ````application.properties```` file is of the form ````Basic <base64 encoding of username:password>````. To generate this value generate the base64 encoding of the username and password as shown below and append that to the String “Basic “.
-    a
-### Example
+```sh
+git submodule update --init --recursive
+```
 
-*   Username:````neo4j````
-*   Password:````my_password````
-*   Authorization Value:````Basic bmVvNGo6bXlfcGFzc3dvcmQ=````
+Configuration keys are in `src/main/resources/application.properties`. Supply environment-specific values through your deployment configuration; do not commit credentials. The primary settings are:
 
-### Generate base64 encoding in terminal/bash
+| Setting | Purpose |
+| --- | --- |
+| `neo4j.url`, `neo4j.user`, `neo4j.password` | Neo4j connection |
+| `es.host`, `es.port`, `es.scheme` | OpenSearch connection |
+| `es.sign.requests`, `es.region`, `es.service_name` | Optional signed OpenSearch requests |
+| `graphql.schema`, `graphql.es_schema` | Private GraphQL schemas |
+| `graphql.public.schema`, `graphql.public.es_schema` | Public GraphQL schemas |
+| `allow_graphql_query`, `allow_graphql_mutation` | GraphQL operation controls |
+| `redis.enable`, `redis.host`, `redis.port` | Optional Redis configuration |
+| `auth.enabled`, `auth.endpoint` | Optional request authentication |
 
-````echo -n "neo4j:my_password" | base64````
+The PopSci GraphQL schemas are in `src/main/resources/graphql`, and OpenSearch query/index definitions are in `src/main/resources/yaml`.
 
-### Generate base64 encoding in powershell
+## Build And Run
 
-````[Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes("neo4j:my_password"))````
+Select JDK 25 as your active Java version using your operating system or IDE settings, and verify that `java -version` reports Java 25.
+
+Install the application WAR and POM into your local Maven repository:
+
+```sh
+./mvnw clean install
+```
+
+Then start the application:
+
+```sh
+./mvnw spring-boot:run
+```
+
+With the application running, `GET http://localhost:8080/ping` should return `pong`. GraphQL requests use `POST /v1/graphql/` (private) or `POST /v1/public-graphql/` (public). Queries requiring Neo4j or OpenSearch need those services to be reachable.
+
+The production Dockerfile builds the WAR and deploys it as `ROOT` on Tomcat 11. CI tests with JDK 25 and the image workflow builds and scans the container before publishing it. Network environments that intercept Maven Central TLS must provide trusted CA configuration to the Docker builder; do not disable certificate verification.
