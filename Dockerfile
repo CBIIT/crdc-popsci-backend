@@ -11,14 +11,20 @@ COPY src ./src
 RUN mvn -B package -DskipTests
 
 # Production stage
-FROM tomcat:11.0.26-jdk25-temurin-noble AS fnl_base_image
+FROM tomcat:11.0.27-jdk25-temurin-noble AS fnl_base_image
 
 ENV JAVA_OPTS="-XX:InitialRAMPercentage=25 -XX:MaxRAMPercentage=70"
 ENV TZ="America/New_York"
 EXPOSE 8080
 
-# Base image patching
-RUN apt update && apt upgrade -y
+# Remediate the reported Ubuntu package vulnerabilities.
+RUN apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        libc-bin=2.39-0ubuntu8.12 \
+        libc6=2.39-0ubuntu8.12 \
+        locales=2.39-0ubuntu8.12 \
+        perl-base=5.38.2-3.2ubuntu0.7 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Remove default applications and create the non-root Tomcat account.
 RUN groupadd -r tomcat \
