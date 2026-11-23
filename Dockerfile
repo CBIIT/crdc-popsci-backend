@@ -17,11 +17,14 @@ ENV JAVA_OPTS="-XX:InitialRAMPercentage=25 -XX:MaxRAMPercentage=70"
 ENV TZ="America/New_York"
 EXPOSE 8080
 
-# Base image patching
-RUN apt update && apt upgrade -y && apt install -y --no-install-recommends \
-    apt=2.8.4ubuntu0.1 \
-    libapt-pkg6.0t64=2.8.4ubuntu0.1 \
-    libpcre2-8-0=10.42-4ubuntu2.2
+# Remediate the reported Ubuntu package vulnerabilities.
+RUN apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        libc-bin=2.39-0ubuntu8.12 \
+        libc6=2.39-0ubuntu8.12 \
+        locales=2.39-0ubuntu8.12 \
+        perl-base=5.38.2-3.2ubuntu0.7 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Remove default applications and create the non-root Tomcat account.
 RUN groupadd -r tomcat \
