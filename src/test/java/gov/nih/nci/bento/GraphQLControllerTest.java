@@ -6,6 +6,9 @@ import gov.nih.nci.bento.model.ConfigurationDAO;
 import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
+import org.neo4j.graphql.DataFetchingInterceptor;
+import org.neo4j.graphql.SchemaBuilder;
+import org.neo4j.graphql.SchemaConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,7 +17,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.ClassPathResource;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +48,19 @@ public class GraphQLControllerTest {
     @BeforeEach
     public void setUp() {
         controller = new GraphQLController(config, bentoGraphQL);
+    }
+
+    @Test
+    public void neo4jSchemas_shouldBuildAndExecuteIntrospection() throws Exception {
+        for (String schemaPath : List.of("graphql/bento-extended.graphql", "graphql/bento-extended-public.graphql")) {
+            try (var schemaStream = new ClassPathResource(schemaPath).getInputStream()) {
+                String schemaText = new String(schemaStream.readAllBytes(), StandardCharsets.UTF_8);
+                var schema = SchemaBuilder.buildSchema(schemaText, new SchemaConfig(), mock(DataFetchingInterceptor.class));
+                var result = GraphQL.newGraphQL(schema).build().execute("{ __typename }");
+                assertTrue("Errors in " + schemaPath + ": " + result.getErrors(), result.getErrors().isEmpty());
+                assertEquals(schema.getQueryType().getName(), ((Map<?, ?>) result.getData()).get("__typename"));
+            }
+        }
     }
 
     @Test
