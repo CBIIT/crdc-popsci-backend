@@ -40,7 +40,8 @@ COPY --from=build /usr/src/app/target/Bento-0.0.1.war /usr/local/tomcat/webapps/
 RUN mkdir -p /usr/local/tomcat/webapps/ROOT \
     && cd /usr/local/tomcat/webapps/ROOT \
     && jar -xf ../ROOT.war \
-    && rm ../ROOT.war
+    && rm ../ROOT.war \
+    && rm -rf WEB-INF/lib-provided
 
 # Ensure Tomcat can access the application and write temporary/work files as non-root.
 RUN chown -R tomcat:tomcat \
