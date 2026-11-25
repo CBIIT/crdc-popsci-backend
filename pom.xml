@@ -31,6 +31,7 @@
         <spring.restdocs.version>4.0.1</spring.restdocs.version>
             <snakeyaml.version>2.6</snakeyaml.version>
         <netty.version>4.2.17.Final</netty.version>
+        <guava.version>33.7.2-jre</guava.version>
     </properties>
 
     <dependencyManagement>
@@ -190,7 +191,13 @@
         <dependency>
             <groupId>com.graphql-java</groupId>
             <artifactId>graphql-java</artifactId>
-            <version>26.2</version>
+            <version>21.5</version>
+        </dependency>
+        <!-- Patched Guava for GHSA-xxph-c9ww-hj94; neo4j-graphql-java requires graphql-java 21.x -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
         </dependency>
 
         <!-- GSON -->
