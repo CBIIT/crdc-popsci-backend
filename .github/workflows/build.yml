@@ -67,7 +67,8 @@ jobs:
     - name: Build
       id: build-image
       run: |
-        docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
+        # Refresh the base and execute OS updates on each release build.
+        docker build --pull --no-cache -t $ECR_REPOSITORY:$IMAGE_TAG .
 
     # - name: Set CVE exit code
     #   run: |

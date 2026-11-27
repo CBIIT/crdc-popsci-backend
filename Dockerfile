@@ -17,13 +17,9 @@ ENV JAVA_OPTS="-XX:InitialRAMPercentage=25 -XX:MaxRAMPercentage=70"
 ENV TZ="America/New_York"
 EXPOSE 8080
 
-# Remediate the reported Ubuntu package vulnerabilities.
+# Apply available updates to installed Ubuntu packages; verify and scan the image.
 RUN apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        libc-bin=2.39-0ubuntu8.12 \
-        libc6=2.39-0ubuntu8.12 \
-        locales=2.39-0ubuntu8.12 \
-        perl-base=5.38.2-3.2ubuntu0.7 \
+    && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Remove default applications and create the non-root Tomcat account.
